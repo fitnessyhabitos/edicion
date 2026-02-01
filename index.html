@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>Editor de Efectos Artísticos Pro</title>
+<title>Editor de Efectos Artísticos PRO - Estilo Clip2Comic</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <style>
   :root{
@@ -15,9 +15,9 @@
     --muted:#888888;
     --border:#2a2a2a;
   }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
   body{
-    background:radial-gradient(circle at top,#1a1a1a 0,#000 60%,#000 100%);
+    background:radial-gradient(circle at top,#1a1a1a 0,#000 60%);
     color:var(--text);
     min-height:100vh;
     display:flex;
@@ -37,11 +37,6 @@
   header{
     padding:16px 20px;
     border-bottom:1px solid var(--border);
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
     background:linear-gradient(135deg,#0f0f0f,#1a1a1a 40%,#222);
   }
   header h1{
@@ -50,7 +45,6 @@
     background:linear-gradient(120deg,#ff5c5c,#ffb347,#00d4ff);
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
-    background-clip:text;
   }
   .badge{
     font-size:0.65rem;
@@ -60,13 +54,11 @@
     color:var(--accent-cyan);
     border:1px solid #333;
     text-transform:uppercase;
-    letter-spacing:0.05em;
+    margin-left:8px;
   }
   main{display:flex;flex-direction:column;}
   .layout{display:flex;flex-direction:column;}
-  @media(min-width:980px){
-    .layout{flex-direction:row;}
-  }
+  @media(min-width:980px){.layout{flex-direction:row;}}
   .panel{padding:16px;}
   .panel.controls{
     background:var(--panel);
@@ -76,13 +68,8 @@
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
   }
-  @media(min-width:980px){
-    .panel.controls{width:360px;}
-  }
-  .panel.preview{
-    flex:1;
-    background:#000;
-  }
+  @media(min-width:980px){.panel.controls{width:360px;}}
+  .panel.preview{flex:1;background:#000;}
   .section-title{
     font-size:0.85rem;
     text-transform:uppercase;
@@ -94,30 +81,16 @@
   }
   .section-title:first-child{margin-top:0;}
   .input-group{margin-bottom:12px;}
-  label{
-    display:block;
-    font-size:0.82rem;
-    margin-bottom:5px;
-    color:#ccc;
-  }
+  label{display:block;font-size:0.82rem;margin-bottom:5px;color:#ccc;}
   .file-drop{
     border:2px dashed var(--border);
     border-radius:14px;
     padding:18px;
     text-align:center;
-    position:relative;
     background:#0f0f0f;
-    transition:all 0.2s;
   }
-  .file-drop.dragover{
-    border-color:var(--accent);
-    background:#1a1a1a;
-    transform:scale(1.02);
-  }
-  /* FIX iOS: El input NO puede estar oculto */
   .file-drop input[type="file"]{
     opacity:1 !important;
-    position:relative !important;
     width:100%;
     padding:10px;
     font-size:14px;
@@ -127,13 +100,9 @@
     border-radius:8px;
     color:#fff;
   }
-  .file-drop p{
-    font-size:0.75rem;
-    color:var(--muted);
-    margin-bottom:8px;
-  }
-  select, input[type="range"], input[type="color"], input[type="text"]{width:100%;}
-  select, input[type="text"]{
+  .file-drop p{font-size:0.75rem;color:var(--muted);margin-bottom:8px;}
+  select,input[type="text"]{
+    width:100%;
     padding:8px 10px;
     border-radius:10px;
     border:1px solid var(--border);
@@ -141,86 +110,36 @@
     color:var(--text);
     font-size:0.85rem;
   }
-  .range-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .range-value{
-    min-width:40px;
-    text-align:right;
-    font-size:0.8rem;
-    color:var(--accent-soft);
-    font-weight:600;
-  }
+  .range-row{display:flex;align-items:center;gap:10px;}
+  .range-value{min-width:40px;text-align:right;font-size:0.8rem;color:var(--accent-soft);font-weight:600;}
   input[type="range"]{
+    width:100%;
     -webkit-appearance:none;
-    appearance:none;
     height:5px;
     border-radius:999px;
     background:linear-gradient(to right,#222,#444);
-    outline:none;
   }
   input[type="range"]::-webkit-slider-thumb{
     -webkit-appearance:none;
-    appearance:none;
     width:18px;
     height:18px;
     border-radius:50%;
     background:linear-gradient(135deg,var(--accent),var(--accent-soft));
     cursor:pointer;
     border:2px solid #000;
-    box-shadow:0 0 8px rgba(255,92,92,0.5);
   }
-  input[type="range"]::-moz-range-thumb{
-    width:18px;
-    height:18px;
-    border-radius:50%;
-    background:var(--accent);
-    border:none;
-    cursor:pointer;
-  }
-  input[type="color"]{
-    border-radius:10px;
-    border:1px solid var(--border);
-    height:38px;
-    padding:2px;
-    background:#000;
-  }
-  .toggles{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:4px;
-  }
-  .toggle{
-    display:flex;
-    align-items:center;
-    gap:5px;
-    font-size:0.76rem;
-    color:#aaa;
-    cursor:pointer;
-  }
-  .toggle input{cursor:pointer;}
-  .buttons{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:12px;
-  }
+  .toggles{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+  .toggle{display:flex;align-items:center;gap:5px;font-size:0.76rem;color:#aaa;cursor:pointer;}
+  .buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
   button{
     border:none;
     border-radius:999px;
     padding:9px 16px;
     font-size:0.8rem;
     cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
     background:#1a1a1a;
     color:var(--text);
     transition:all 0.2s;
-    border:1px solid transparent;
     -webkit-tap-highlight-color:transparent;
   }
   button.primary{
@@ -229,33 +148,9 @@
     font-weight:600;
     box-shadow:0 0 16px rgba(255,92,92,0.4);
   }
-  button.secondary{
-    background:#222;
-    border-color:#333;
-  }
-  button.ghost{
-    background:transparent;
-    border:1px solid var(--border);
-  }
-  button.accent{
-    background:var(--accent-cyan);
-    color:#000;
-    font-weight:600;
-  }
-  button:disabled{
-    opacity:0.3;
-    cursor:not-allowed;
-    box-shadow:none;
-  }
-  button:active{
-    transform:scale(0.96);
-  }
-  .hint{
-    font-size:0.7rem;
-    color:var(--muted);
-    margin-top:6px;
-    line-height:1.4;
-  }
+  button.accent{background:var(--accent-cyan);color:#000;font-weight:600;}
+  button:disabled{opacity:0.3;cursor:not-allowed;}
+  button:active{transform:scale(0.96);}
   .canvas-wrapper{
     position:relative;
     width:100%;
@@ -264,35 +159,13 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    overflow:hidden;
   }
-  canvas{
-    max-width:100%;
-    max-height:85vh;
-    background:#000;
-    display:block;
-  }
-  #canvasMask{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    pointer-events:none;
-    opacity:0.7;
-  }
-  #canvasMask.active{
-    pointer-events:all;
-    cursor:crosshair;
-  }
-  .placeholder{
-    text-align:center;
-    color:var(--muted);
-    font-size:0.9rem;
-    padding:40px 20px;
-  }
+  canvas{max-width:100%;max-height:85vh;background:#000;}
+  .placeholder{text-align:center;color:var(--muted);font-size:0.9rem;padding:40px 20px;}
   .spinner{
     position:absolute;
-    inset:auto 16px 16px auto;
+    right:16px;
+    bottom:16px;
     width:32px;
     height:32px;
     border-radius:50%;
@@ -300,215 +173,124 @@
     border-top-color:var(--accent-soft);
     animation:spin 0.8s linear infinite;
     display:none;
-    z-index:10;
   }
   .spinner.visible{display:block;}
   @keyframes spin{to{transform:rotate(360deg);}}
-  .mode-indicator{
-    position:absolute;
-    top:16px;
-    left:16px;
-    background:rgba(0,0,0,0.8);
-    padding:6px 12px;
-    border-radius:20px;
-    font-size:0.75rem;
-    color:var(--accent-cyan);
-    border:1px solid rgba(0,212,255,0.3);
-    display:none;
-  }
-  .mode-indicator.visible{display:block;}
-  .preset-grid{
+  .style-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+    grid-template-columns:repeat(2,1fr);
     gap:8px;
     margin-top:8px;
   }
-  .preset-card{
+  .style-card{
     background:#1a1a1a;
-    border:1px solid #333;
+    border:2px solid #333;
     border-radius:10px;
-    padding:8px;
+    padding:12px 8px;
     cursor:pointer;
     text-align:center;
     transition:all 0.2s;
   }
-  .preset-card:active{
-    background:#252525;
+  .style-card.active{
     border-color:var(--accent);
-    transform:translateY(-2px);
+    background:#252525;
   }
-  .preset-card .name{
-    font-size:0.75rem;
-    color:#fff;
-    margin-bottom:3px;
-  }
-  .preset-card .effect{
-    font-size:0.65rem;
-    color:var(--muted);
-  }
-  .preset-card .delete{
-    font-size:0.7rem;
-    color:#f44;
-    margin-top:4px;
-    opacity:0.7;
-  }
-  .mask-controls{
-    display:none;
-    background:#1a1a1a;
-    padding:10px;
-    border-radius:10px;
-    margin-top:8px;
-    border:1px solid #333;
-  }
-  .mask-controls.visible{display:block;}
-  .debug-info{
-    font-size:0.7rem;
-    color:#0f0;
-    background:#001100;
-    padding:4px 8px;
-    border-radius:4px;
-    margin-top:8px;
-    font-family:monospace;
-  }
+  .style-card:active{transform:scale(0.95);}
+  .style-card .emoji{font-size:1.5rem;margin-bottom:4px;}
+  .style-card .name{font-size:0.75rem;color:#fff;}
 </style>
 </head>
 <body>
-<div class="app" aria-label="Editor de efectos artísticos profesional">
+<div class="app">
   <header>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <h1>✨ Editor de Efectos Artísticos Pro</h1>
-      <span class="badge">iOS Optimizado</span>
-    </div>
-    <span style="font-size:0.75rem;color:var(--muted);">100% privado · Todo en tu iPhone</span>
+    <h1>✨ Editor Profesional de Efectos</h1>
+    <span class="badge">Algoritmos PRO</span>
+    <span class="badge">Estilo Clip2Comic</span>
   </header>
 
   <main>
     <div class="layout">
-      <!-- Panel de controles -->
-      <section class="panel controls" aria-label="Controles de edición">
+      <section class="panel controls">
         
-        <div class="section-title">📸 Imagen</div>
+        <div class="section-title">📸 Cargar Imagen</div>
         <div class="input-group">
-          <div class="file-drop" id="zonaDrop">
+          <div class="file-drop">
             <p><strong>📁 Seleccionar foto</strong></p>
-            <!-- FIX iOS: input visible, NO oculto, accept simplificado -->
-            <input id="fileInput" type="file" accept="image/*" capture="environment" aria-label="Subir imagen" />
+            <input id="fileInput" type="file" accept="image/*" capture="environment" />
           </div>
-          <div id="debugInfo" class="debug-info" style="display:none;"></div>
         </div>
 
-        <div class="section-title">🎨 Efecto</div>
+        <div class="section-title">🎨 Estilos Artísticos</div>
+        <div class="style-grid" id="styleGrid"></div>
+
+        <div class="section-title">⚙️ Ajustes Avanzados</div>
+        
         <div class="input-group">
-          <label for="selectEfecto">Estilo artístico:</label>
-          <select id="selectEfecto" aria-label="Elegir efecto artístico">
-            <optgroup label="🔥 Clásicos">
-              <option value="neon">⚡ Neón intenso</option>
-              <option value="cartoon">🎭 Cartoon clásico</option>
-              <option value="simpsons">💛 Estilo Simpsons</option>
-              <option value="boceto">✏️ Boceto a lápiz</option>
-              <option value="poster">🎨 Posterizado pop</option>
-              <option value="oleo">🖌️ Pintura al óleo</option>
-            </optgroup>
-            <optgroup label="✨ Nuevos Efectos">
-              <option value="acuarela">💧 Acuarela</option>
-              <option value="comic-bw">📰 Cómic blanco y negro</option>
-              <option value="glitch">📺 Glitch RGB</option>
-            </optgroup>
-          </select>
-        </div>
-
-        <div class="section-title">⚙️ Ajustes</div>
-
-        <div class="input-group" id="grupoUmbral">
-          <label for="umbralBordes">Umbral de bordes</label>
+          <label for="smoothing">Suavizado (Bilateral Filter)</label>
           <div class="range-row">
-            <input id="umbralBordes" type="range" min="20" max="150" value="80" />
-            <span class="range-value" id="valUmbral">80</span>
-          </div>
-        </div>
-
-        <div class="input-group" id="grupoGlow">
-          <label for="intensidadGlow">Intensidad de brillo</label>
-          <div class="range-row">
-            <input id="intensidadGlow" type="range" min="5" max="50" value="25" />
-            <span class="range-value" id="valGlow">25</span>
+            <input id="smoothing" type="range" min="0" max="100" value="50" />
+            <span class="range-value" id="valSmoothing">50</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label for="nitidez">Nitidez</label>
+          <label for="edgeStrength">Intensidad de bordes</label>
           <div class="range-row">
-            <input id="nitidez" type="range" min="-50" max="100" value="20" />
-            <span class="range-value" id="valNitidez">20</span>
+            <input id="edgeStrength" type="range" min="10" max="200" value="100" />
+            <span class="range-value" id="valEdge">100</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label for="mezcla">Mezcla con original (%)</label>
+          <label for="colorLevels">Niveles de color</label>
           <div class="range-row">
-            <input id="mezcla" type="range" min="0" max="100" value="70" />
-            <span class="range-value" id="valMezcla">70%</span>
+            <input id="colorLevels" type="range" min="4" max="32" value="12" />
+            <span class="range-value" id="valColors">12</span>
           </div>
         </div>
 
-        <div class="input-group" id="grupoColor">
-          <label for="colorPrincipal">Color principal</label>
-          <input id="colorPrincipal" type="color" value="#ff4500" />
+        <div class="input-group">
+          <label for="saturation">Saturación</label>
+          <div class="range-row">
+            <input id="saturation" type="range" min="50" max="200" value="120" />
+            <span class="range-value" id="valSat">120%</span>
+          </div>
         </div>
 
-        <div class="input-group" id="grupoGrosor">
-          <label for="grosorLineas">Grosor de líneas</label>
+        <div class="input-group">
+          <label for="contrast">Contraste</label>
           <div class="range-row">
-            <input id="grosorLineas" type="range" min="1" max="10" value="3" />
-            <span class="range-value" id="valGrosor">3px</span>
+            <input id="contrast" type="range" min="50" max="200" value="110" />
+            <span class="range-value" id="valCon">110%</span>
           </div>
         </div>
 
         <div class="toggles">
           <label class="toggle">
-            <input id="soloContornos" type="checkbox" />
-            <span>Solo contornos</span>
+            <input id="useKMeans" type="checkbox" checked />
+            <span>K-Means Clustering</span>
           </label>
           <label class="toggle">
-            <input id="invertir" type="checkbox" />
-            <span>Invertir</span>
-          </label>
-          <label class="toggle">
-            <input id="splitView" type="checkbox" />
-            <span>Vista dividida</span>
+            <input id="useBilateral" type="checkbox" checked />
+            <span>Filtro Bilateral</span>
           </label>
         </div>
 
-        <div class="section-title">💾 Presets guardados</div>
-        <div class="input-group">
-          <input id="presetName" type="text" placeholder="Nombre del preset..." />
-          <div class="buttons">
-            <button id="btnSavePreset" class="secondary">Guardar preset</button>
-          </div>
-        </div>
-        <div class="preset-grid" id="presetGrid"></div>
-
-        <div class="section-title">🚀 Acciones</div>
         <div class="buttons">
-          <button class="primary" id="btnAplicar">Aplicar efecto</button>
-          <button class="secondary" id="btnRestablecer">Restablecer</button>
-        </div>
-        <div class="buttons">
-          <button class="accent" id="btnDescargar" disabled>⬇️ Descargar PNG</button>
+          <button class="primary" id="btnAplicar">🎨 Aplicar Efecto</button>
+          <button class="accent" id="btnDescargar" disabled>⬇️ Descargar HD</button>
         </div>
         
       </section>
 
-      <!-- Panel de vista previa -->
-      <section class="panel preview" aria-label="Vista previa de la imagen">
+      <section class="panel preview">
         <div class="canvas-wrapper">
           <canvas id="canvas"></canvas>
           <div id="placeholder" class="placeholder">
-            🖼️ Selecciona una foto para empezar<br>
-            <span style="font-size:0.75rem;color:#666;">Optimizado para iPhone 16 Pro</span>
+            🖼️ Carga una foto para comenzar<br>
+            <span style="font-size:0.75rem;color:#666;">Algoritmos profesionales de procesamiento de imagen</span>
           </div>
-          <div id="spinner" class="spinner" aria-hidden="true"></div>
-          <div id="modeIndicator" class="mode-indicator">🖌️ Procesando...</div>
+          <div id="spinner" class="spinner"></div>
         </div>
       </section>
     </div>
@@ -518,721 +300,453 @@
 <script>
 (() => {
   'use strict';
-  
-  console.log('🚀 Iniciando app...');
-  
-  // ========== DOM Elements ==========
+
+  const STYLES = [
+    {id:'classic-comic', name:'Cómic Clásico', emoji:'📰', params:{smooth:60,edge:120,colors:8,sat:130,con:120}},
+    {id:'vibrant-pop', name:'Pop Art Vibrante', emoji:'🎨', params:{smooth:70,edge:140,colors:12,sat:150,con:130}},
+    {id:'manga', name:'Manga japonés', emoji:'📚', params:{smooth:40,edge:180,colors:6,sat:100,con:140}},
+    {id:'neon-glow', name:'Neón Intenso', emoji:'⚡', params:{smooth:50,edge:150,colors:16,sat:180,con:120}},
+    {id:'vintage-comic', name:'Cómic Vintage', emoji:'📖', params:{smooth:80,edge:100,colors:10,sat:90,con:110}},
+    {id:'modern-cartoon', name:'Cartoon Moderno', emoji:'🎭', params:{smooth:65,edge:130,colors:14,sat:140,con:115}},
+    {id:'sketch-art', name:'Arte Boceto', emoji:'✏️', params:{smooth:30,edge:200,colors:4,sat:80,con:150}},
+    {id:'watercolor', name:'Acuarela Digital', emoji:'💧', params:{smooth:90,edge:80,colors:20,sat:110,con:100}},
+  ];
+
   const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d', {willReadFrequently: true});
-  
+  const ctx = canvas.getContext('2d', {willReadFrequently:true});
   const fileInput = document.getElementById('fileInput');
-  const selectEfecto = document.getElementById('selectEfecto');
   const placeholder = document.getElementById('placeholder');
   const spinner = document.getElementById('spinner');
-  const modeIndicator = document.getElementById('modeIndicator');
-  const debugInfo = document.getElementById('debugInfo');
-
-  const umbralBordes = document.getElementById('umbralBordes');
-  const intensidadGlow = document.getElementById('intensidadGlow');
-  const nitidez = document.getElementById('nitidez');
-  const mezcla = document.getElementById('mezcla');
-  const colorPrincipal = document.getElementById('colorPrincipal');
-  const grosorLineas = document.getElementById('grosorLineas');
-  const soloContornos = document.getElementById('soloContornos');
-  const invertir = document.getElementById('invertir');
-  const splitView = document.getElementById('splitView');
-
-  const valUmbral = document.getElementById('valUmbral');
-  const valGlow = document.getElementById('valGlow');
-  const valNitidez = document.getElementById('valNitidez');
-  const valMezcla = document.getElementById('valMezcla');
-  const valGrosor = document.getElementById('valGrosor');
-
-  const grupoGlow = document.getElementById('grupoGlow');
-  const grupoColor = document.getElementById('grupoColor');
-  const grupoGrosor = document.getElementById('grupoGrosor');
-  const grupoUmbral = document.getElementById('grupoUmbral');
-
+  const styleGrid = document.getElementById('styleGrid');
   const btnAplicar = document.getElementById('btnAplicar');
-  const btnRestablecer = document.getElementById('btnRestablecer');
   const btnDescargar = document.getElementById('btnDescargar');
-  const btnSavePreset = document.getElementById('btnSavePreset');
-  const presetName = document.getElementById('presetName');
-  const presetGrid = document.getElementById('presetGrid');
 
-  // ========== State ==========
+  const smoothing = document.getElementById('smoothing');
+  const edgeStrength = document.getElementById('edgeStrength');
+  const colorLevels = document.getElementById('colorLevels');
+  const saturation = document.getElementById('saturation');
+  const contrast = document.getElementById('contrast');
+  const useKMeans = document.getElementById('useKMeans');
+  const useBilateral = document.getElementById('useBilateral');
+
+  const valSmoothing = document.getElementById('valSmoothing');
+  const valEdge = document.getElementById('valEdge');
+  const valColors = document.getElementById('valColors');
+  const valSat = document.getElementById('valSat');
+  const valCon = document.getElementById('valCon');
+
   let imagenOriginal = null;
   let imagenBase = null;
+  let currentStyle = 'classic-comic';
   let processingTimeout = null;
 
-  // ========== Utility Functions ==========
-  function log(msg){
-    console.log(msg);
-    debugInfo.textContent = msg;
-    debugInfo.style.display = 'block';
+  // ========== Render styles grid ==========
+  STYLES.forEach(style => {
+    const card = document.createElement('div');
+    card.className = 'style-card';
+    if(style.id === currentStyle) card.classList.add('active');
+    card.innerHTML = `<div class="emoji">${style.emoji}</div><div class="name">${style.name}</div>`;
+    card.onclick = () => {
+      document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      currentStyle = style.id;
+      applyStylePreset(style.params);
+    };
+    styleGrid.appendChild(card);
+  });
+
+  function applyStylePreset(params){
+    smoothing.value = params.smooth;
+    edgeStrength.value = params.edge;
+    colorLevels.value = params.colors;
+    saturation.value = params.sat;
+    contrast.value = params.con;
+    updateLabels();
+    if(imagenOriginal) aplicarEfectoDebounced();
   }
 
-  function mostrarSpinner(mostrar){
-    spinner.classList.toggle('visible', !!mostrar);
-    modeIndicator.classList.toggle('visible', !!mostrar);
+  function updateLabels(){
+    valSmoothing.textContent = smoothing.value;
+    valEdge.textContent = edgeStrength.value;
+    valColors.textContent = colorLevels.value;
+    valSat.textContent = saturation.value + '%';
+    valCon.textContent = contrast.value + '%';
+  }
+
+  [smoothing,edgeStrength,colorLevels,saturation,contrast].forEach(input => {
+    input.addEventListener('input', () => {
+      updateLabels();
+      aplicarEfectoDebounced();
+    });
+  });
+
+  [useKMeans,useBilateral].forEach(input => {
+    input.addEventListener('change', aplicarEfectoDebounced);
+  });
+
+  function mostrarSpinner(show){
+    spinner.classList.toggle('visible', show);
   }
 
   function clamp(v, min, max){
     return v < min ? min : (v > max ? max : v);
   }
 
-  function cargarImagen(archivo){
-    if(!archivo) {
-      log('❌ No se seleccionó archivo');
-      return;
-    }
-    
-    log(`📄 Archivo: ${archivo.name} (${(archivo.size/1024/1024).toFixed(2)}MB)`);
-    
+  // ========== Load Image ==========
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if(!file) return;
+
     const reader = new FileReader();
-    
-    reader.onerror = (e) => {
-      log(`❌ Error FileReader: ${e.target.error}`);
-    };
-    
     reader.onload = e => {
-      log('✅ FileReader completado');
       const img = new Image();
-      
-      img.onerror = () => {
-        log('❌ Error al cargar imagen');
-      };
-      
       img.onload = () => {
-        log(`✅ Imagen cargada: ${img.width}x${img.height}`);
         imagenBase = img;
-        redimensionarYGuardarOriginal();
+        const maxDim = 1500;
+        let w = img.width;
+        let h = img.height;
+        const ratio = Math.min(1, maxDim / Math.max(w,h));
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+        
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        imagenOriginal = ctx.getImageData(0,0,w,h);
+        placeholder.style.display = 'none';
         btnDescargar.disabled = false;
+        aplicarEfectoDebounced();
       };
-      
       img.src = e.target.result;
     };
-    
-    // FIX iOS: Leer inmediatamente para evitar timeout de 60s
-    reader.readAsDataURL(archivo);
-  }
+    reader.readAsDataURL(file);
+  });
 
-  function redimensionarYGuardarOriginal(){
-    if(!imagenBase) return;
-    
-    // FIX iOS: Reducir tamaño máximo para evitar límites de memoria
-    const maxDim = 1500; // Reducido de 2000 para iOS
-    let w = imagenBase.width;
-    let h = imagenBase.height;
-    const ratio = Math.min(1, maxDim / Math.max(w,h));
-    w = Math.round(w * ratio);
-    h = Math.round(h * ratio);
-    
-    canvas.width = w;
-    canvas.height = h;
-    
-    log(`📐 Canvas: ${w}x${h}`);
-    
-    ctx.drawImage(imagenBase, 0, 0, w, h);
-    imagenOriginal = ctx.getImageData(0,0,w,h);
-    
-    placeholder.style.display = 'none';
-    log('✅ Listo para aplicar efectos');
-    aplicarEfectoSeleccionadoDebounced();
-  }
-
-  function hexToRgb(hex){
-    const clean = hex.replace('#','');
-    const bigint = parseInt(clean,16);
-    return {
-      r:(bigint>>16)&255,
-      g:(bigint>>8)&255,
-      b:bigint&255
-    };
-  }
-
-  function obtenerParametros(){
-    return {
-      umbral: parseInt(umbralBordes.value,10),
-      glow: parseInt(intensidadGlow.value,10),
-      nitidez: parseInt(nitidez.value,10),
-      mezcla: parseInt(mezcla.value,10)/100,
-      color: hexToRgb(colorPrincipal.value),
-      grosor: parseInt(grosorLineas.value,10),
-      soloContornos: soloContornos.checked,
-      invertir: invertir.checked
-    };
-  }
-
-  // ========== Effect Processing ==========
-  function aplicarEfectoSeleccionadoDebounced(){
+  function aplicarEfectoDebounced(){
     if(!imagenOriginal) return;
     clearTimeout(processingTimeout);
-    processingTimeout = setTimeout(aplicarEfectoSeleccionado, 100);
+    processingTimeout = setTimeout(aplicarEfecto, 150);
   }
 
-  function aplicarEfectoSeleccionado(){
+  // ========== ADVANCED IMAGE PROCESSING ==========
+  
+  function aplicarEfecto(){
     if(!imagenOriginal) return;
     mostrarSpinner(true);
-    
-    // FIX iOS: Usar setTimeout para evitar bloquear UI
+
     setTimeout(() => {
       try {
         const w = imagenOriginal.width;
         const h = imagenOriginal.height;
-        const imgData = new ImageData(new Uint8ClampedArray(imagenOriginal.data), w, h);
-        let procesada = imgData;
+        let imgData = new ImageData(new Uint8ClampedArray(imagenOriginal.data), w, h);
 
-        const params = obtenerParametros();
-        const efecto = selectEfecto.value;
+        // Step 1: Median filter to reduce noise
+        imgData = medianFilter(imgData);
 
-        switch(efecto){
-          case 'neon': procesada = aplicarNeon(procesada, params); break;
-          case 'cartoon': procesada = aplicarCartoon(procesada, params); break;
-          case 'simpsons': procesada = aplicarSimpsons(procesada, params); break;
-          case 'boceto': procesada = aplicarBoceto(procesada, params); break;
-          case 'poster': procesada = aplicarPosterizado(procesada, params); break;
-          case 'oleo': procesada = aplicarOleo(procesada, params); break;
-          case 'acuarela': procesada = aplicarAcuarela(procesada, params); break;
-          case 'comic-bw': procesada = aplicarComicBW(procesada, params); break;
-          case 'glitch': procesada = aplicarGlitch(procesada, params); break;
+        // Step 2: Bilateral filter (edge-preserving smoothing)
+        if(useBilateral.checked){
+          const smoothVal = parseInt(smoothing.value) / 100;
+          imgData = bilateralFilter(imgData, smoothVal);
         }
 
-        if(params.nitidez !== 0){
-          procesada = ajustarNitidez(procesada, params.nitidez);
+        // Step 3: Adjust saturation and contrast
+        imgData = adjustSaturationContrast(imgData, 
+          parseInt(saturation.value) / 100, 
+          parseInt(contrast.value) / 100
+        );
+
+        // Step 4: Color quantization (K-means clustering)
+        if(useKMeans.checked){
+          const numColors = parseInt(colorLevels.value);
+          imgData = kMeansQuantization(imgData, numColors);
         }
 
-        procesada = mezclarConOriginal(procesada, imagenOriginal, params.mezcla);
+        // Step 5: Edge detection and enhancement
+        const edges = sobelEdgeDetection(imgData, parseInt(edgeStrength.value));
+        
+        // Step 6: Combine edges with color image
+        imgData = combineEdgesWithColor(imgData, edges);
 
-        if(params.invertir){
-          procesada = invertirColores(procesada);
-        }
-
-        ctx.clearRect(0,0,w,h);
-        if(splitView.checked){
-          ctx.putImageData(imagenOriginal,0,0);
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = w;
-          tempCanvas.height = h;
-          const tempCtx = tempCanvas.getContext('2d');
-          tempCtx.putImageData(procesada,0,0);
-          ctx.drawImage(tempCanvas, Math.floor(w/2),0,Math.ceil(w/2),h, Math.floor(w/2),0,Math.ceil(w/2),h);
-          ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(Math.floor(w/2),0);
-          ctx.lineTo(Math.floor(w/2),h);
-          ctx.stroke();
-        }else{
-          ctx.putImageData(procesada,0,0);
-        }
-
-        log('✅ Efecto aplicado');
+        ctx.putImageData(imgData, 0, 0);
         mostrarSpinner(false);
       } catch(e) {
-        log(`❌ Error: ${e.message}`);
+        console.error(e);
         mostrarSpinner(false);
       }
     }, 50);
   }
 
-  function mezclarConOriginal(procesada, original, factor){
-    const w = original.width, h = original.height;
-    const o = original.data;
-    const p = procesada.data;
-    const out = new Uint8ClampedArray(o.length);
-    for(let i=0;i<o.length;i+=4){
-      out[i]   = clamp(o[i]*(1-factor)   + p[i]*factor,0,255);
-      out[i+1] = clamp(o[i+1]*(1-factor) + p[i+1]*factor,0,255);
-      out[i+2] = clamp(o[i+2]*(1-factor) + p[i+2]*factor,0,255);
-      out[i+3] = 255;
-    }
-    return new ImageData(out,w,h);
-  }
-
-  function invertirColores(imgData){
-    const d = imgData.data;
-    for(let i=0;i<d.length;i+=4){
-      d[i] = 255-d[i];
-      d[i+1] = 255-d[i+1];
-      d[i+2] = 255-d[i+2];
-    }
-    return imgData;
-  }
-
-  function ajustarNitidez(imgData, amount){
-    if(amount === 0) return imgData;
+  // ========== Median Filter (noise reduction) ==========
+  function medianFilter(imgData){
     const w = imgData.width, h = imgData.height;
     const src = imgData.data;
     const out = new Uint8ClampedArray(src.length);
-    const kBase = [0,-1,0,-1,5,-1,0,-1,0];
-    const strength = amount > 0 ? 1 + amount/50 : 1 + amount/100;
-    const k = kBase.map(v => v * strength);
-    for(let y=1;y<h-1;y++){
-      for(let x=1;x<w-1;x++){
-        let r=0,g=0,b=0,ki=0;
-        for(let ky=-1;ky<=1;ky++){
-          for(let kx=-1;kx<=1;kx++){
-            const idx = ((y+ky)*w+(x+kx))*4;
-            const kv = k[ki++];
-            r += src[idx]*kv;
-            g += src[idx+1]*kv;
-            b += src[idx+2]*kv;
+    
+    for(let y=1; y<h-1; y++){
+      for(let x=1; x<w-1; x++){
+        const rVals = [], gVals = [], bVals = [];
+        
+        for(let ky=-1; ky<=1; ky++){
+          for(let kx=-1; kx<=1; kx++){
+            const idx = ((y+ky)*w + (x+kx)) * 4;
+            rVals.push(src[idx]);
+            gVals.push(src[idx+1]);
+            bVals.push(src[idx+2]);
           }
         }
-        const o = (y*w+x)*4;
-        out[o]   = clamp(r,0,255);
-        out[o+1] = clamp(g,0,255);
-        out[o+2] = clamp(b,0,255);
-        out[o+3] = 255;
+        
+        rVals.sort((a,b) => a-b);
+        gVals.sort((a,b) => a-b);
+        bVals.sort((a,b) => a-b);
+        
+        const idx = (y*w + x) * 4;
+        out[idx] = rVals[4];
+        out[idx+1] = gVals[4];
+        out[idx+2] = bVals[4];
+        out[idx+3] = 255;
       }
     }
-    return new ImageData(out,w,h);
+    
+    // Copy edges
+    for(let i=0; i<src.length; i++) if(out[i]===0) out[i] = src[i];
+    
+    return new ImageData(out, w, h);
   }
 
-  function detectarBordesSobel(imgData){
-    const w = imgData.width;
-    const h = imgData.height;
+  // ========== Bilateral Filter (edge-preserving smoothing) ==========
+  function bilateralFilter(imgData, strength){
+    const w = imgData.width, h = imgData.height;
     const src = imgData.data;
-    const out = new Uint8ClampedArray(w*h*4);
-
-    for(let y=1;y<h-1;y++){
-      for(let x=1;x<w-1;x++){
-        let gx=0, gy=0;
-        const kernel = [
-          [((y-1)*w+(x-1))*4, -1, -1],
-          [((y-1)*w+x)*4, 0, -2],
-          [((y-1)*w+(x+1))*4, 1, -1],
-          [(y*w+(x-1))*4, -2, 0],
-          [(y*w+(x+1))*4, 2, 0],
-          [((y+1)*w+(x-1))*4, -1, 1],
-          [((y+1)*w+x)*4, 0, 2],
-          [((y+1)*w+(x+1))*4, 1, 1]
-        ];
-        for(const [idx, kx, ky] of kernel){
-          const gray = (src[idx]+src[idx+1]+src[idx+2])/3;
-          gx += gray * kx;
-          gy += gray * ky;
+    const out = new Uint8ClampedArray(src.length);
+    
+    const radius = Math.round(3 * strength) || 1;
+    const sigmaSpace = radius;
+    const sigmaColor = 50 * strength;
+    
+    for(let y=0; y<h; y++){
+      for(let x=0; x<w; x++){
+        const idx = (y*w + x) * 4;
+        const centerR = src[idx];
+        const centerG = src[idx+1];
+        const centerB = src[idx+2];
+        
+        let sumR=0, sumG=0, sumB=0, sumWeight=0;
+        
+        for(let ky=-radius; ky<=radius; ky++){
+          for(let kx=-radius; kx<=radius; kx++){
+            const ny = clamp(y+ky, 0, h-1);
+            const nx = clamp(x+kx, 0, w-1);
+            const nidx = (ny*w + nx) * 4;
+            
+            const nr = src[nidx];
+            const ng = src[nidx+1];
+            const nb = src[nidx+2];
+            
+            // Spatial weight
+            const spatialDist = Math.sqrt(kx*kx + ky*ky);
+            const spatialWeight = Math.exp(-(spatialDist*spatialDist) / (2*sigmaSpace*sigmaSpace));
+            
+            // Color weight
+            const colorDist = Math.sqrt(
+              (nr-centerR)*(nr-centerR) + 
+              (ng-centerG)*(ng-centerG) + 
+              (nb-centerB)*(nb-centerB)
+            );
+            const colorWeight = Math.exp(-(colorDist*colorDist) / (2*sigmaColor*sigmaColor));
+            
+            const weight = spatialWeight * colorWeight;
+            
+            sumR += nr * weight;
+            sumG += ng * weight;
+            sumB += nb * weight;
+            sumWeight += weight;
+          }
         }
-        const mag = Math.sqrt(gx*gx + gy*gy);
-        const v = clamp(mag,0,255);
-        const o = (y*w+x)*4;
-        out[o]=out[o+1]=out[o+2]=v;
-        out[o+3]=255;
+        
+        out[idx] = sumR / sumWeight;
+        out[idx+1] = sumG / sumWeight;
+        out[idx+2] = sumB / sumWeight;
+        out[idx+3] = 255;
       }
     }
-    return new ImageData(out,w,h);
+    
+    return new ImageData(out, w, h);
   }
 
-  function cuantizarColor(imgData, niveles){
+  // ========== Saturation & Contrast ==========
+  function adjustSaturationContrast(imgData, satFactor, conFactor){
     const d = imgData.data;
-    const step = 255/(niveles-1);
-    for(let i=0;i<d.length;i+=4){
-      d[i]   = Math.round(d[i]/step)*step;
-      d[i+1] = Math.round(d[i+1]/step)*step;
-      d[i+2] = Math.round(d[i+2]/step)*step;
+    
+    for(let i=0; i<d.length; i+=4){
+      let r = d[i], g = d[i+1], b = d[i+2];
+      
+      // Saturation
+      const gray = 0.299*r + 0.587*g + 0.114*b;
+      r = gray + (r - gray) * satFactor;
+      g = gray + (g - gray) * satFactor;
+      b = gray + (b - gray) * satFactor;
+      
+      // Contrast
+      r = ((r/255 - 0.5) * conFactor + 0.5) * 255;
+      g = ((g/255 - 0.5) * conFactor + 0.5) * 255;
+      b = ((b/255 - 0.5) * conFactor + 0.5) * 255;
+      
+      d[i] = clamp(r, 0, 255);
+      d[i+1] = clamp(g, 0, 255);
+      d[i+2] = clamp(b, 0, 255);
     }
+    
     return imgData;
   }
 
-  // ========== Effects ==========
-  function aplicarNeon(imgData, params){
-    const edges = detectarBordesSobel(imgData);
+  // ========== K-Means Color Quantization ==========
+  function kMeansQuantization(imgData, k){
     const w = imgData.width, h = imgData.height;
-    const out = ctx.createImageData(w,h);
-    const dst = out.data;
-    const e = edges.data;
-    const color = params.color;
-    const umbral = params.umbral;
-
-    for(let i=0;i<e.length;i+=4){
-      const v = e[i];
-      if(v > umbral){
-        dst[i]=color.r;
-        dst[i+1]=color.g;
-        dst[i+2]=color.b;
-        dst[i+3]=255;
-      }else{
-        dst[i]=dst[i+1]=dst[i+2]=0;
-        dst[i+3]=params.soloContornos?0:255;
-      }
-    }
-    return out;
-  }
-
-  function aplicarCartoon(imgData, params){
-    const res = cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 10);
-    const edges = detectarBordesSobel(imgData);
-    const dst = res.data;
-    const e = edges.data;
-    const umbral = params.umbral;
-
-    for(let i=0;i<e.length;i+=4){
-      if(e[i] > umbral){
-        dst[i]=dst[i+1]=dst[i+2]=0;
-        dst[i+3]=255;
-      }
-    }
-    return res;
-  }
-
-  function aplicarSimpsons(imgData, params){
     const d = imgData.data;
-    for(let i=0;i<d.length;i+=4){
-      const r=d[i], g=d[i+1], b=d[i+2];
-      const isSkin = r>g && g>b && r>60 && g>40;
-      if(isSkin){
-        d[i]   = params.color.r;
-        d[i+1] = params.color.g;
-        d[i+2] = params.color.b;
-      }else{
-        const avg=(r+g+b)/3;
-        d[i]   = clamp(avg + (r-avg)*1.3,0,255);
-        d[i+1] = clamp(avg + (g-avg)*1.3,0,255);
-        d[i+2] = clamp(avg + (b-avg)*1.3,0,255);
+    const pixels = [];
+    
+    // Sample pixels (use every 4th pixel for speed)
+    for(let i=0; i<d.length; i+=16){
+      pixels.push([d[i], d[i+1], d[i+2]]);
+    }
+    
+    // Initialize centroids randomly
+    const centroids = [];
+    const used = new Set();
+    while(centroids.length < k){
+      const idx = Math.floor(Math.random() * pixels.length);
+      const key = pixels[idx].join(',');
+      if(!used.has(key)){
+        centroids.push([...pixels[idx]]);
+        used.add(key);
       }
     }
-    const edges = detectarBordesSobel(imgData);
-    const e = edges.data;
-    const umbral = params.umbral;
-    for(let i=0;i<e.length;i+=4){
-      if(e[i] > umbral){
-        d[i]=d[i+1]=d[i+2]=0;
+    
+    // K-means iterations
+    for(let iter=0; iter<5; iter++){
+      const clusters = Array(k).fill(null).map(() => []);
+      
+      // Assign pixels to nearest centroid
+      for(const pixel of pixels){
+        let minDist = Infinity;
+        let bestCluster = 0;
+        
+        for(let j=0; j<k; j++){
+          const dist = Math.sqrt(
+            (pixel[0]-centroids[j][0])**2 +
+            (pixel[1]-centroids[j][1])**2 +
+            (pixel[2]-centroids[j][2])**2
+          );
+          if(dist < minDist){
+            minDist = dist;
+            bestCluster = j;
+          }
+        }
+        
+        clusters[bestCluster].push(pixel);
+      }
+      
+      // Update centroids
+      for(let j=0; j<k; j++){
+        if(clusters[j].length === 0) continue;
+        
+        const sumR = clusters[j].reduce((s,p) => s+p[0], 0);
+        const sumG = clusters[j].reduce((s,p) => s+p[1], 0);
+        const sumB = clusters[j].reduce((s,p) => s+p[2], 0);
+        const len = clusters[j].length;
+        
+        centroids[j] = [sumR/len, sumG/len, sumB/len];
       }
     }
+    
+    // Map all pixels to nearest centroid
+    for(let i=0; i<d.length; i+=4){
+      const pixel = [d[i], d[i+1], d[i+2]];
+      let minDist = Infinity;
+      let bestColor = centroids[0];
+      
+      for(const centroid of centroids){
+        const dist = Math.sqrt(
+          (pixel[0]-centroid[0])**2 +
+          (pixel[1]-centroid[1])**2 +
+          (pixel[2]-centroid[2])**2
+        );
+        if(dist < minDist){
+          minDist = dist;
+          bestColor = centroid;
+        }
+      }
+      
+      d[i] = bestColor[0];
+      d[i+1] = bestColor[1];
+      d[i+2] = bestColor[2];
+    }
+    
     return imgData;
   }
 
-  function aplicarBoceto(imgData, params){
-    const w = imgData.width, h = imgData.height;
-    const gray = new Uint8ClampedArray(w*h*4);
-    const src = imgData.data;
-    for(let i=0;i<src.length;i+=4){
-      const g = (src[i]+src[i+1]+src[i+2])/3;
-      gray[i]=gray[i+1]=gray[i+2]=g;
-      gray[i+3]=255;
-    }
-    const grayImg = new ImageData(gray,w,h);
-    const edges = detectarBordesSobel(grayImg);
-    const dst = ctx.createImageData(w,h);
-    const e = edges.data;
-    const umbral = params.umbral;
-    for(let i=0;i<e.length;i+=4){
-      const c = e[i]>umbral ? 0:255;
-      dst.data[i]=dst.data[i+1]=dst.data[i+2]=c;
-      dst.data[i+3]=255;
-    }
-    return dst;
-  }
-
-  function aplicarPosterizado(imgData, params){
-    return cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 6);
-  }
-
-  function aplicarOleo(imgData, params){
-    const radius = 2; // Reducido para iOS
-    const intensity = 15;
+  // ========== Sobel Edge Detection ==========
+  function sobelEdgeDetection(imgData, threshold){
     const w = imgData.width, h = imgData.height;
     const src = imgData.data;
-    const out = ctx.createImageData(w,h);
-    const dst = out.data;
+    const edges = new Uint8ClampedArray(w*h);
     
-    for(let y=0;y<h;y++){
-      for(let x=0;x<w;x++){
-        const bins = [];
-        for(let yy=-radius;yy<=radius;yy++){
-          for(let xx=-radius;xx<=radius;xx++){
-            const ny=y+yy, nx=x+xx;
-            if(ny<0||ny>=h||nx<0||nx>=w) continue;
-            const idx=(ny*w+nx)*4;
-            const r=src[idx], g=src[idx+1], b=src[idx+2];
-            const avg=(r+g+b)/3;
-            const bin=Math.floor((avg*intensity)/255);
-            if(!bins[bin]) bins[bin]={count:0,r:0,g:0,b:0};
-            bins[bin].count++;
-            bins[bin].r+=r;
-            bins[bin].g+=g;
-            bins[bin].b+=b;
+    for(let y=1; y<h-1; y++){
+      for(let x=1; x<w-1; x++){
+        let gx = 0, gy = 0;
+        
+        for(let ky=-1; ky<=1; ky++){
+          for(let kx=-1; kx<=1; kx++){
+            const idx = ((y+ky)*w + (x+kx)) * 4;
+            const gray = 0.299*src[idx] + 0.587*src[idx+1] + 0.114*src[idx+2];
+            
+            const sobelX = kx;
+            const sobelY = ky;
+            
+            gx += gray * sobelX;
+            gy += gray * sobelY;
           }
         }
-        let maxBin = null;
-        for(const bin of bins){
-          if(bin && (!maxBin || bin.count > maxBin.count)){
-            maxBin = bin;
-          }
-        }
-        const o=(y*w+x)*4;
-        if(maxBin){
-          dst[o]=maxBin.r/maxBin.count;
-          dst[o+1]=maxBin.g/maxBin.count;
-          dst[o+2]=maxBin.b/maxBin.count;
-          dst[o+3]=255;
-        }
+        
+        const magnitude = Math.sqrt(gx*gx + gy*gy);
+        edges[y*w + x] = magnitude > threshold ? 255 : 0;
       }
     }
-    return out;
-  }
-
-  function aplicarAcuarela(imgData, params){
-    let result = cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 12);
-    const edges = detectarBordesSobel(imgData);
-    const e = edges.data;
-    const d = result.data;
-    for(let i=0;i<e.length;i+=4){
-      if(e[i] > 100){
-        const factor = 0.3;
-        d[i] *= (1-factor);
-        d[i+1] *= (1-factor);
-        d[i+2] *= (1-factor);
-      }
-    }
-    return result;
-  }
-
-  function aplicarComicBW(imgData, params){
-    const w = imgData.width, h = imgData.height;
-    const src = imgData.data;
-    const out = ctx.createImageData(w,h);
-    const dst = out.data;
-
-    for(let i=0;i<src.length;i+=4){
-      const gray = (src[i]+src[i+1]+src[i+2])/3;
-      const threshold = 128;
-      const val = gray > threshold ? 255 : 0;
-      dst[i]=dst[i+1]=dst[i+2]=val;
-      dst[i+3]=255;
-    }
-
-    const edges = detectarBordesSobel(imgData);
-    const e = edges.data;
-    for(let i=0;i<e.length;i+=4){
-      if(e[i] > 80){
-        dst[i]=dst[i+1]=dst[i+2]=0;
-      }
-    }
-    return out;
-  }
-
-  function aplicarGlitch(imgData, params){
-    const w = imgData.width, h = imgData.height;
-    const src = imgData.data;
-    const out = ctx.createImageData(w,h);
-    const dst = out.data;
-
-    const shiftR = 5;
-    const shiftG = -3;
-
-    for(let y=0;y<h;y++){
-      for(let x=0;x<w;x++){
-        const idx = (y*w+x)*4;
-        const xR = clamp(x+shiftR, 0, w-1);
-        const xG = clamp(x+shiftG, 0, w-1);
-
-        dst[idx]   = src[(y*w+xR)*4];
-        dst[idx+1] = src[(y*w+xG)*4+1];
-        dst[idx+2] = src[(y*w+x)*4+2];
-        dst[idx+3] = 255;
-      }
-    }
-
-    for(let y=0;y<h;y+=3){
-      if(Math.random() > 0.7){
-        for(let x=0;x<w;x++){
-          const idx = (y*w+x)*4;
-          dst[idx] *= 0.7;
-          dst[idx+1] *= 0.7;
-          dst[idx+2] *= 0.7;
-        }
-      }
-    }
-    return out;
-  }
-
-  // ========== Presets ==========
-  function savePreset(){
-    const name = presetName.value.trim();
-    if(!name) {
-      alert('Por favor, introduce un nombre para el preset');
-      return;
-    }
-
-    const preset = {
-      name,
-      efecto: selectEfecto.value,
-      umbral: umbralBordes.value,
-      glow: intensidadGlow.value,
-      nitidez: nitidez.value,
-      mezcla: mezcla.value,
-      color: colorPrincipal.value,
-      grosor: grosorLineas.value,
-      soloContornos: soloContornos.checked,
-      invertir: invertir.checked
-    };
-
-    let presets = JSON.parse(localStorage.getItem('artEffectsPresets') || '[]');
-    presets.push(preset);
-    localStorage.setItem('artEffectsPresets', JSON.stringify(presets));
     
-    presetName.value = '';
-    loadPresets();
+    return edges;
   }
 
-  function loadPresets(){
-    const presets = JSON.parse(localStorage.getItem('artEffectsPresets') || '[]');
-    presetGrid.innerHTML = '';
+  // ========== Combine Edges with Color ==========
+  function combineEdgesWithColor(imgData, edges){
+    const d = imgData.data;
     
-    presets.forEach((preset, index) => {
-      const card = document.createElement('div');
-      card.className = 'preset-card';
-      card.innerHTML = `
-        <div class="name">${preset.name}</div>
-        <div class="effect">${preset.efecto}</div>
-        <div class="delete" data-index="${index}">🗑️</div>
-      `;
-      
-      card.addEventListener('click', e => {
-        if(e.target.classList.contains('delete')){
-          deletePreset(index);
-        }else{
-          applyPreset(preset);
-        }
-      });
-      
-      presetGrid.appendChild(card);
-    });
-  }
-
-  function applyPreset(preset){
-    selectEfecto.value = preset.efecto;
-    umbralBordes.value = preset.umbral;
-    intensidadGlow.value = preset.glow;
-    nitidez.value = preset.nitidez;
-    mezcla.value = preset.mezcla;
-    colorPrincipal.value = preset.color;
-    grosorLineas.value = preset.grosor;
-    soloContornos.checked = preset.soloContornos;
-    invertir.checked = preset.invertir;
-    
-    actualizarEtiquetasSliders();
-    actualizarVisibilidadControles();
-    aplicarEfectoSeleccionadoDebounced();
-  }
-
-  function deletePreset(index){
-    let presets = JSON.parse(localStorage.getItem('artEffectsPresets') || '[]');
-    presets.splice(index, 1);
-    localStorage.setItem('artEffectsPresets', JSON.stringify(presets));
-    loadPresets();
-  }
-
-  // ========== UI Functions ==========
-  function restablecerAjustesPorEfecto(){
-    const efecto = selectEfecto.value;
-    const presets = {
-      neon: {umbral:90, glow:35, nitidez:30, mezcla:80, color:'#00f5ff', grosor:3, soloContornos:true, invertir:false},
-      cartoon: {umbral:70, glow:15, nitidez:25, mezcla:80, color:'#ff4500', grosor:4, soloContornos:false, invertir:false},
-      simpsons: {umbral:60, glow:10, nitidez:10, mezcla:85, color:'#ffd90a', grosor:5, soloContornos:false, invertir:false},
-      boceto: {umbral:70, glow:10, nitidez:40, mezcla:60, color:'#ffffff', grosor:3, soloContornos:true, invertir:true},
-      poster: {umbral:80, glow:15, nitidez:10, mezcla:75, color:'#ff00ff', grosor:3, soloContornos:false, invertir:false},
-      oleo: {umbral:60, glow:10, nitidez:5, mezcla:90, color:'#ffb347', grosor:2, soloContornos:false, invertir:false},
-      acuarela: {umbral:50, glow:20, nitidez:0, mezcla:85, color:'#87ceeb', grosor:2, soloContornos:false, invertir:false},
-      'comic-bw': {umbral:90, glow:10, nitidez:30, mezcla:70, color:'#000000', grosor:4, soloContornos:false, invertir:false},
-      glitch: {umbral:80, glow:25, nitidez:15, mezcla:90, color:'#ff00ff', grosor:3, soloContornos:false, invertir:false}
-    };
-
-    const p = presets[efecto] || presets.neon;
-    umbralBordes.value = p.umbral;
-    intensidadGlow.value = p.glow;
-    nitidez.value = p.nitidez;
-    mezcla.value = p.mezcla;
-    colorPrincipal.value = p.color;
-    grosorLineas.value = p.grosor;
-    soloContornos.checked = p.soloContornos;
-    invertir.checked = p.invertir;
-
-    actualizarEtiquetasSliders();
-    actualizarVisibilidadControles();
-  }
-
-  function actualizarEtiquetasSliders(){
-    valUmbral.textContent = umbralBordes.value;
-    valGlow.textContent = intensidadGlow.value;
-    valNitidez.textContent = nitidez.value;
-    valMezcla.textContent = mezcla.value + '%';
-    valGrosor.textContent = grosorLineas.value + 'px';
-  }
-
-  function actualizarVisibilidadControles(){
-    const efecto = selectEfecto.value;
-    const showGlow = ['neon','cartoon','poster','glitch'].includes(efecto);
-    const showColor = ['neon','simpsons','poster'].includes(efecto);
-    const showGrosor = ['cartoon','simpsons','boceto','neon','comic-bw'].includes(efecto);
-    const showUmbral = ['neon','cartoon','simpsons','boceto','poster','comic-bw'].includes(efecto);
-
-    grupoGlow.style.display = showGlow ? 'block' : 'none';
-    grupoColor.style.display = showColor ? 'block' : 'none';
-    grupoGrosor.style.display = showGrosor ? 'block' : 'none';
-    grupoUmbral.style.display = showUmbral ? 'block' : 'none';
-  }
-
-  // ========== Event Listeners ==========
-  
-  // FIX iOS: Usar addEventListener normal, NO onchange en input oculto
-  fileInput.addEventListener('change', e => {
-    log('📂 Change event disparado');
-    const archivo = e.target.files[0];
-    cargarImagen(archivo);
-  }, false);
-
-  selectEfecto.addEventListener('change', () => {
-    restablecerAjustesPorEfecto();
-    aplicarEfectoSeleccionadoDebounced();
-  });
-
-  [umbralBordes,intensidadGlow,nitidez,mezcla,grosorLineas].forEach(input => {
-    input.addEventListener('input', ()=>{
-      actualizarEtiquetasSliders();
-      aplicarEfectoSeleccionadoDebounced();
-    });
-  });
-
-  [colorPrincipal,soloContornos,invertir,splitView].forEach(input => {
-    input.addEventListener('change', aplicarEfectoSeleccionadoDebounced);
-  });
-
-  btnAplicar.addEventListener('click', aplicarEfectoSeleccionado);
-  
-  btnRestablecer.addEventListener('click', () => {
-    restablecerAjustesPorEfecto();
-    if(imagenOriginal){
-      ctx.putImageData(imagenOriginal,0,0);
-      aplicarEfectoSeleccionadoDebounced();
+    for(let i=0; i<edges.length; i++){
+      if(edges[i] > 128){
+        const idx = i * 4;
+        d[idx] = 0;
+        d[idx+1] = 0;
+        d[idx+2] = 0;
+        d[idx+3] = 255;
+      }
     }
-  });
+    
+    return imgData;
+  }
 
+  // ========== Download ==========
   btnDescargar.addEventListener('click', () => {
-    try {
-      const link = document.createElement('a');
-      link.download = `efecto-${selectEfecto.value}-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      log('✅ Descarga iniciada');
-    } catch(e) {
-      log(`❌ Error descarga: ${e.message}`);
-    }
+    const link = document.createElement('a');
+    link.download = `comic-effect-${currentStyle}-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
   });
 
-  btnSavePreset.addEventListener('click', savePreset);
+  btnAplicar.addEventListener('click', aplicarEfecto);
 
-  // ========== Initialization ==========
-  restablecerAjustesPorEfecto();
-  actualizarVisibilidadControles();
-  actualizarEtiquetasSliders();
-  loadPresets();
-
-  log('✅ App lista - Optimizada para iPhone 16 Pro');
+  // Init
+  updateLabels();
+  applyStylePreset(STYLES[0].params);
 })();
 </script>
-
 </body>
 </html>
