@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Editor de Efectos Artísticos Pro</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <style>
   :root{
     --bg:#0a0a0a;
@@ -74,6 +74,7 @@
     min-width:280px;
     max-height:90vh;
     overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
   @media(min-width:980px){
     .panel.controls{width:360px;}
@@ -104,7 +105,6 @@
     border-radius:14px;
     padding:18px;
     text-align:center;
-    cursor:pointer;
     position:relative;
     background:#0f0f0f;
     transition:all 0.2s;
@@ -114,16 +114,23 @@
     background:#1a1a1a;
     transform:scale(1.02);
   }
+  /* FIX iOS: El input NO puede estar oculto */
   .file-drop input[type="file"]{
-    position:absolute;
-    inset:0;
-    opacity:0;
+    opacity:1 !important;
+    position:relative !important;
+    width:100%;
+    padding:10px;
+    font-size:14px;
     cursor:pointer;
+    background:#1a1a1a;
+    border:1px solid #333;
+    border-radius:8px;
+    color:#fff;
   }
   .file-drop p{
     font-size:0.75rem;
     color:var(--muted);
-    margin-top:4px;
+    margin-bottom:8px;
   }
   select, input[type="range"], input[type="color"], input[type="text"]{width:100%;}
   select, input[type="text"]{
@@ -214,6 +221,7 @@
     color:var(--text);
     transition:all 0.2s;
     border:1px solid transparent;
+    -webkit-tap-highlight-color:transparent;
   }
   button.primary{
     background:linear-gradient(120deg,#ff5c5c,#ffb347);
@@ -239,11 +247,7 @@
     cursor:not-allowed;
     box-shadow:none;
   }
-  button:not(:disabled):hover{
-    transform:translateY(-2px);
-    box-shadow:0 4px 12px rgba(255,255,255,0.1);
-  }
-  button:not(:disabled):active{
+  button:active{
     transform:scale(0.96);
   }
   .hint{
@@ -255,7 +259,7 @@
   .canvas-wrapper{
     position:relative;
     width:100%;
-    min-height:500px;
+    min-height:400px;
     background:#000;
     display:flex;
     align-items:center;
@@ -328,7 +332,7 @@
     text-align:center;
     transition:all 0.2s;
   }
-  .preset-card:hover{
+  .preset-card:active{
     background:#252525;
     border-color:var(--accent);
     transform:translateY(-2px);
@@ -348,7 +352,6 @@
     margin-top:4px;
     opacity:0.7;
   }
-  .preset-card .delete:hover{opacity:1;}
   .mask-controls{
     display:none;
     background:#1a1a1a;
@@ -358,14 +361,14 @@
     border:1px solid #333;
   }
   .mask-controls.visible{display:block;}
-  .webgl-badge{
-    font-size:0.65rem;
+  .debug-info{
+    font-size:0.7rem;
     color:#0f0;
-    background:#001a00;
-    padding:2px 6px;
-    border-radius:6px;
-    border:1px solid #0a0;
-    margin-left:8px;
+    background:#001100;
+    padding:4px 8px;
+    border-radius:4px;
+    margin-top:8px;
+    font-family:monospace;
   }
 </style>
 </head>
@@ -374,10 +377,9 @@
   <header>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <h1>✨ Editor de Efectos Artísticos Pro</h1>
-      <span class="badge">WebGL Acelerado</span>
-      <span class="badge">IA Ready</span>
+      <span class="badge">iOS Optimizado</span>
     </div>
-    <span style="font-size:0.75rem;color:var(--muted);">100% privado · Todo en tu navegador</span>
+    <span style="font-size:0.75rem;color:var(--muted);">100% privado · Todo en tu iPhone</span>
   </header>
 
   <main>
@@ -388,10 +390,11 @@
         <div class="section-title">📸 Imagen</div>
         <div class="input-group">
           <div class="file-drop" id="zonaDrop">
-            <strong>📁 Subir imagen</strong>
-            <p>Haz clic o arrastra (JPG/PNG/WEBP)</p>
-            <input id="fileInput" type="file" accept="image/*" aria-label="Subir imagen" />
+            <p><strong>📁 Seleccionar foto</strong></p>
+            <!-- FIX iOS: input visible, NO oculto, accept simplificado -->
+            <input id="fileInput" type="file" accept="image/*" capture="environment" aria-label="Subir imagen" />
           </div>
+          <div id="debugInfo" class="debug-info" style="display:none;"></div>
         </div>
 
         <div class="section-title">🎨 Efecto</div>
@@ -410,16 +413,14 @@
               <option value="acuarela">💧 Acuarela</option>
               <option value="comic-bw">📰 Cómic blanco y negro</option>
               <option value="glitch">📺 Glitch RGB</option>
-              <option value="blur-bg">🌫️ Desenfoque de fondo (experimental)</option>
             </optgroup>
           </select>
-          <span class="hint">💡 Los efectos usan WebGL para máximo rendimiento</span>
         </div>
 
         <div class="section-title">⚙️ Ajustes</div>
 
         <div class="input-group" id="grupoUmbral">
-          <label for="umbralBordes">Umbral de detección de bordes</label>
+          <label for="umbralBordes">Umbral de bordes</label>
           <div class="range-row">
             <input id="umbralBordes" type="range" min="20" max="150" value="80" />
             <span class="range-value" id="valUmbral">80</span>
@@ -427,7 +428,7 @@
         </div>
 
         <div class="input-group" id="grupoGlow">
-          <label for="intensidadGlow">Intensidad de glow / brillo</label>
+          <label for="intensidadGlow">Intensidad de brillo</label>
           <div class="range-row">
             <input id="intensidadGlow" type="range" min="5" max="50" value="25" />
             <span class="range-value" id="valGlow">25</span>
@@ -478,24 +479,6 @@
           </label>
         </div>
 
-        <div class="section-title">🖌️ Máscara personalizada</div>
-        <div class="buttons">
-          <button id="btnMaskMode" class="ghost">Activar modo pincel</button>
-          <button id="btnClearMask" class="ghost" disabled>Limpiar máscara</button>
-        </div>
-        <div class="mask-controls" id="maskControls">
-          <label for="brushSize">Tamaño del pincel</label>
-          <div class="range-row">
-            <input id="brushSize" type="range" min="5" max="100" value="30" />
-            <span class="range-value" id="valBrushSize">30px</span>
-          </div>
-          <label class="toggle" style="margin-top:8px;">
-            <input id="brushEraser" type="checkbox" />
-            <span>Modo borrador</span>
-          </label>
-          <p class="hint">Pinta las zonas donde NO quieres aplicar el efecto</p>
-        </div>
-
         <div class="section-title">💾 Presets guardados</div>
         <div class="input-group">
           <input id="presetName" type="text" placeholder="Nombre del preset..." />
@@ -520,121 +503,34 @@
       <section class="panel preview" aria-label="Vista previa de la imagen">
         <div class="canvas-wrapper">
           <canvas id="canvas"></canvas>
-          <canvas id="canvasMask"></canvas>
           <div id="placeholder" class="placeholder">
-            🖼️ Sube una imagen para empezar<br>
-            <span style="font-size:0.75rem;color:#666;">Acepta JPG, PNG, WEBP</span>
+            🖼️ Selecciona una foto para empezar<br>
+            <span style="font-size:0.75rem;color:#666;">Optimizado para iPhone 16 Pro</span>
           </div>
           <div id="spinner" class="spinner" aria-hidden="true"></div>
-          <div id="modeIndicator" class="mode-indicator">🖌️ Modo pincel activo</div>
+          <div id="modeIndicator" class="mode-indicator">🖌️ Procesando...</div>
         </div>
       </section>
     </div>
   </main>
 </div>
 
-<!-- WebGL Shaders -->
-<script id="vertex-shader" type="x-shader/x-vertex">
-attribute vec2 a_position;
-attribute vec2 a_texCoord;
-varying vec2 v_texCoord;
-void main() {
-  gl_Position = vec4(a_position, 0.0, 1.0);
-  v_texCoord = a_texCoord;
-}
-</script>
-
-<script id="fragment-sobel" type="x-shader/x-fragment">
-precision mediump float;
-uniform sampler2D u_image;
-uniform vec2 u_textureSize;
-uniform float u_threshold;
-varying vec2 v_texCoord;
-
-void main() {
-  vec2 onePixel = 1.0 / u_textureSize;
-  
-  // Sobel kernels
-  float gx = 0.0;
-  float gy = 0.0;
-  
-  vec3 tl = texture2D(u_image, v_texCoord + vec2(-onePixel.x, -onePixel.y)).rgb;
-  vec3 tm = texture2D(u_image, v_texCoord + vec2(0.0, -onePixel.y)).rgb;
-  vec3 tr = texture2D(u_image, v_texCoord + vec2(onePixel.x, -onePixel.y)).rgb;
-  vec3 ml = texture2D(u_image, v_texCoord + vec2(-onePixel.x, 0.0)).rgb;
-  vec3 mr = texture2D(u_image, v_texCoord + vec2(onePixel.x, 0.0)).rgb;
-  vec3 bl = texture2D(u_image, v_texCoord + vec2(-onePixel.x, onePixel.y)).rgb;
-  vec3 bm = texture2D(u_image, v_texCoord + vec2(0.0, onePixel.y)).rgb;
-  vec3 br = texture2D(u_image, v_texCoord + vec2(onePixel.x, onePixel.y)).rgb;
-  
-  float gtl = dot(tl, vec3(0.299, 0.587, 0.114));
-  float gtm = dot(tm, vec3(0.299, 0.587, 0.114));
-  float gtr = dot(tr, vec3(0.299, 0.587, 0.114));
-  float gml = dot(ml, vec3(0.299, 0.587, 0.114));
-  float gmr = dot(mr, vec3(0.299, 0.587, 0.114));
-  float gbl = dot(bl, vec3(0.299, 0.587, 0.114));
-  float gbm = dot(bm, vec3(0.299, 0.587, 0.114));
-  float gbr = dot(br, vec3(0.299, 0.587, 0.114));
-  
-  gx = -gtl - 2.0*gml - gbl + gtr + 2.0*gmr + gbr;
-  gy = -gtl - 2.0*gtm - gtr + gbl + 2.0*gbm + gbr;
-  
-  float mag = sqrt(gx*gx + gy*gy);
-  float edge = mag > u_threshold/255.0 ? 1.0 : 0.0;
-  
-  gl_FragColor = vec4(vec3(edge), 1.0);
-}
-</script>
-
-<script id="fragment-blur" type="x-shader/x-fragment">
-precision mediump float;
-uniform sampler2D u_image;
-uniform vec2 u_textureSize;
-uniform float u_blurAmount;
-varying vec2 v_texCoord;
-
-void main() {
-  vec2 onePixel = 1.0 / u_textureSize;
-  vec4 color = vec4(0.0);
-  float total = 0.0;
-  
-  int radius = int(u_blurAmount);
-  for(int y = -10; y <= 10; y++) {
-    for(int x = -10; x <= 10; x++) {
-      if(abs(float(x)) > u_blurAmount || abs(float(y)) > u_blurAmount) continue;
-      vec2 offset = vec2(float(x), float(y)) * onePixel;
-      color += texture2D(u_image, v_texCoord + offset);
-      total += 1.0;
-    }
-  }
-  
-  gl_FragColor = color / total;
-}
-</script>
-
-<script id="fragment-passthrough" type="x-shader/x-fragment">
-precision mediump float;
-uniform sampler2D u_image;
-varying vec2 v_texCoord;
-void main() {
-  gl_FragColor = texture2D(u_image, v_texCoord);
-}
-</script>
-
 <script>
 (() => {
+  'use strict';
+  
+  console.log('🚀 Iniciando app...');
+  
   // ========== DOM Elements ==========
   const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const canvasMask = document.getElementById('canvasMask');
-  const ctxMask = canvasMask.getContext('2d');
+  const ctx = canvas.getContext('2d', {willReadFrequently: true});
   
   const fileInput = document.getElementById('fileInput');
-  const zonaDrop = document.getElementById('zonaDrop');
   const selectEfecto = document.getElementById('selectEfecto');
   const placeholder = document.getElementById('placeholder');
   const spinner = document.getElementById('spinner');
   const modeIndicator = document.getElementById('modeIndicator');
+  const debugInfo = document.getElementById('debugInfo');
 
   const umbralBordes = document.getElementById('umbralBordes');
   const intensidadGlow = document.getElementById('intensidadGlow');
@@ -660,12 +556,6 @@ void main() {
   const btnAplicar = document.getElementById('btnAplicar');
   const btnRestablecer = document.getElementById('btnRestablecer');
   const btnDescargar = document.getElementById('btnDescargar');
-  const btnMaskMode = document.getElementById('btnMaskMode');
-  const btnClearMask = document.getElementById('btnClearMask');
-  const maskControls = document.getElementById('maskControls');
-  const brushSize = document.getElementById('brushSize');
-  const brushEraser = document.getElementById('brushEraser');
-  const valBrushSize = document.getElementById('valBrushSize');
   const btnSavePreset = document.getElementById('btnSavePreset');
   const presetName = document.getElementById('presetName');
   const presetGrid = document.getElementById('presetGrid');
@@ -674,145 +564,17 @@ void main() {
   let imagenOriginal = null;
   let imagenBase = null;
   let processingTimeout = null;
-  let maskMode = false;
-  let painting = false;
-  let maskData = null;
-  let webglAvailable = false;
-  let gl = null;
-  let webglPrograms = {};
-
-  // ========== WebGL Setup ==========
-  function initWebGL() {
-    try {
-      const glCanvas = document.createElement('canvas');
-      gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
-      if (!gl) throw new Error('WebGL not supported');
-      webglAvailable = true;
-      console.log('✅ WebGL initialized successfully');
-      setupWebGLPrograms();
-    } catch(e) {
-      console.warn('⚠️ WebGL not available, using Canvas 2D fallback');
-      webglAvailable = false;
-    }
-  }
-
-  function compileShader(source, type) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      console.error('Shader compile error:', gl.getShaderInfoLog(shader));
-      gl.deleteShader(shader);
-      return null;
-    }
-    return shader;
-  }
-
-  function createProgram(vertexSource, fragmentSource) {
-    const vertexShader = compileShader(vertexSource, gl.VERTEX_SHADER);
-    const fragmentShader = compileShader(fragmentSource, gl.FRAGMENT_SHADER);
-    const program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error('Program link error:', gl.getProgramInfoLog(program));
-      return null;
-    }
-    return program;
-  }
-
-  function setupWebGLPrograms() {
-    const vertexSource = document.getElementById('vertex-shader').textContent;
-    const sobelSource = document.getElementById('fragment-sobel').textContent;
-    const blurSource = document.getElementById('fragment-blur').textContent;
-    const passthroughSource = document.getElementById('fragment-passthrough').textContent;
-
-    webglPrograms.sobel = createProgram(vertexSource, sobelSource);
-    webglPrograms.blur = createProgram(vertexSource, blurSource);
-    webglPrograms.passthrough = createProgram(vertexSource, passthroughSource);
-  }
-
-  function applyWebGLFilter(imageData, programName, uniforms = {}) {
-    if (!webglAvailable || !webglPrograms[programName]) return imageData;
-
-    const w = imageData.width;
-    const h = imageData.height;
-    
-    gl.canvas.width = w;
-    gl.canvas.height = h;
-    gl.viewport(0, 0, w, h);
-
-    const program = webglPrograms[programName];
-    gl.useProgram(program);
-
-    // Setup buffers
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1, -1, 1, -1, -1, 1,
-      -1, 1, 1, -1, 1, 1
-    ]), gl.STATIC_DRAW);
-
-    const texCoordBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      0, 0, 1, 0, 0, 1,
-      0, 1, 1, 0, 1, 1
-    ]), gl.STATIC_DRAW);
-
-    const positionLocation = gl.getAttribLocation(program, 'a_position');
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-    const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-    gl.enableVertexAttribArray(texCoordLocation);
-    gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-
-    // Create texture from imageData
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
-
-    // Set uniforms
-    const textureSizeLocation = gl.getUniformLocation(program, 'u_textureSize');
-    if (textureSizeLocation) {
-      gl.uniform2f(textureSizeLocation, w, h);
-    }
-
-    Object.keys(uniforms).forEach(key => {
-      const location = gl.getUniformLocation(program, key);
-      if (location) {
-        const value = uniforms[key];
-        if (typeof value === 'number') {
-          gl.uniform1f(location, value);
-        }
-      }
-    });
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-    // Read back pixels
-    const pixels = new Uint8ClampedArray(w * h * 4);
-    gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    
-    // Clean up
-    gl.deleteTexture(texture);
-    gl.deleteBuffer(positionBuffer);
-    gl.deleteBuffer(texCoordBuffer);
-
-    return new ImageData(pixels, w, h);
-  }
 
   // ========== Utility Functions ==========
+  function log(msg){
+    console.log(msg);
+    debugInfo.textContent = msg;
+    debugInfo.style.display = 'block';
+  }
+
   function mostrarSpinner(mostrar){
     spinner.classList.toggle('visible', !!mostrar);
+    modeIndicator.classList.toggle('visible', !!mostrar);
   }
 
   function clamp(v, min, max){
@@ -820,42 +582,62 @@ void main() {
   }
 
   function cargarImagen(archivo){
-    if(!archivo) return;
+    if(!archivo) {
+      log('❌ No se seleccionó archivo');
+      return;
+    }
+    
+    log(`📄 Archivo: ${archivo.name} (${(archivo.size/1024/1024).toFixed(2)}MB)`);
+    
     const reader = new FileReader();
+    
+    reader.onerror = (e) => {
+      log(`❌ Error FileReader: ${e.target.error}`);
+    };
+    
     reader.onload = e => {
+      log('✅ FileReader completado');
       const img = new Image();
+      
+      img.onerror = () => {
+        log('❌ Error al cargar imagen');
+      };
+      
       img.onload = () => {
+        log(`✅ Imagen cargada: ${img.width}x${img.height}`);
         imagenBase = img;
         redimensionarYGuardarOriginal();
         btnDescargar.disabled = false;
-        btnClearMask.disabled = false;
       };
+      
       img.src = e.target.result;
     };
+    
+    // FIX iOS: Leer inmediatamente para evitar timeout de 60s
     reader.readAsDataURL(archivo);
   }
 
   function redimensionarYGuardarOriginal(){
     if(!imagenBase) return;
-    const maxDim = 2000;
+    
+    // FIX iOS: Reducir tamaño máximo para evitar límites de memoria
+    const maxDim = 1500; // Reducido de 2000 para iOS
     let w = imagenBase.width;
     let h = imagenBase.height;
     const ratio = Math.min(1, maxDim / Math.max(w,h));
     w = Math.round(w * ratio);
     h = Math.round(h * ratio);
+    
     canvas.width = w;
     canvas.height = h;
-    canvasMask.width = w;
-    canvasMask.height = h;
+    
+    log(`📐 Canvas: ${w}x${h}`);
     
     ctx.drawImage(imagenBase, 0, 0, w, h);
     imagenOriginal = ctx.getImageData(0,0,w,h);
     
-    // Clear mask
-    maskData = ctxMask.createImageData(w, h);
-    ctxMask.clearRect(0,0,w,h);
-    
     placeholder.style.display = 'none';
+    log('✅ Listo para aplicar efectos');
     aplicarEfectoSeleccionadoDebounced();
   }
 
@@ -893,92 +675,65 @@ void main() {
     if(!imagenOriginal) return;
     mostrarSpinner(true);
     
+    // FIX iOS: Usar setTimeout para evitar bloquear UI
     setTimeout(() => {
-      const w = imagenOriginal.width;
-      const h = imagenOriginal.height;
-      const imgData = new ImageData(new Uint8ClampedArray(imagenOriginal.data), w, h);
-      let procesada = imgData;
+      try {
+        const w = imagenOriginal.width;
+        const h = imagenOriginal.height;
+        const imgData = new ImageData(new Uint8ClampedArray(imagenOriginal.data), w, h);
+        let procesada = imgData;
 
-      const params = obtenerParametros();
-      const efecto = selectEfecto.value;
+        const params = obtenerParametros();
+        const efecto = selectEfecto.value;
 
-      switch(efecto){
-        case 'neon': procesada = aplicarNeon(procesada, params); break;
-        case 'cartoon': procesada = aplicarCartoon(procesada, params); break;
-        case 'simpsons': procesada = aplicarSimpsons(procesada, params); break;
-        case 'boceto': procesada = aplicarBoceto(procesada, params); break;
-        case 'poster': procesada = aplicarPosterizado(procesada, params); break;
-        case 'oleo': procesada = aplicarOleo(procesada, params); break;
-        case 'acuarela': procesada = aplicarAcuarela(procesada, params); break;
-        case 'comic-bw': procesada = aplicarComicBW(procesada, params); break;
-        case 'glitch': procesada = aplicarGlitch(procesada, params); break;
-        case 'blur-bg': procesada = aplicarBlurBackground(procesada, params); break;
+        switch(efecto){
+          case 'neon': procesada = aplicarNeon(procesada, params); break;
+          case 'cartoon': procesada = aplicarCartoon(procesada, params); break;
+          case 'simpsons': procesada = aplicarSimpsons(procesada, params); break;
+          case 'boceto': procesada = aplicarBoceto(procesada, params); break;
+          case 'poster': procesada = aplicarPosterizado(procesada, params); break;
+          case 'oleo': procesada = aplicarOleo(procesada, params); break;
+          case 'acuarela': procesada = aplicarAcuarela(procesada, params); break;
+          case 'comic-bw': procesada = aplicarComicBW(procesada, params); break;
+          case 'glitch': procesada = aplicarGlitch(procesada, params); break;
+        }
+
+        if(params.nitidez !== 0){
+          procesada = ajustarNitidez(procesada, params.nitidez);
+        }
+
+        procesada = mezclarConOriginal(procesada, imagenOriginal, params.mezcla);
+
+        if(params.invertir){
+          procesada = invertirColores(procesada);
+        }
+
+        ctx.clearRect(0,0,w,h);
+        if(splitView.checked){
+          ctx.putImageData(imagenOriginal,0,0);
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = w;
+          tempCanvas.height = h;
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.putImageData(procesada,0,0);
+          ctx.drawImage(tempCanvas, Math.floor(w/2),0,Math.ceil(w/2),h, Math.floor(w/2),0,Math.ceil(w/2),h);
+          ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(Math.floor(w/2),0);
+          ctx.lineTo(Math.floor(w/2),h);
+          ctx.stroke();
+        }else{
+          ctx.putImageData(procesada,0,0);
+        }
+
+        log('✅ Efecto aplicado');
+        mostrarSpinner(false);
+      } catch(e) {
+        log(`❌ Error: ${e.message}`);
+        mostrarSpinner(false);
       }
-
-      if(params.nitidez !== 0){
-        procesada = ajustarNitidez(procesada, params.nitidez);
-      }
-
-      procesada = mezclarConOriginal(procesada, imagenOriginal, params.mezcla);
-
-      if(params.invertir){
-        procesada = invertirColores(procesada);
-      }
-
-      // Apply mask if exists
-      if(maskData && maskHasContent(maskData)){
-        procesada = aplicarMascara(procesada, imagenOriginal, maskData);
-      }
-
-      ctx.clearRect(0,0,w,h);
-      if(splitView.checked){
-        ctx.putImageData(imagenOriginal,0,0);
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = w;
-        tempCanvas.height = h;
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.putImageData(procesada,0,0);
-        ctx.drawImage(tempCanvas, Math.floor(w/2),0,Math.ceil(w/2),h, Math.floor(w/2),0,Math.ceil(w/2),h);
-        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(Math.floor(w/2),0);
-        ctx.lineTo(Math.floor(w/2),h);
-        ctx.stroke();
-      }else{
-        ctx.putImageData(procesada,0,0);
-      }
-
-      mostrarSpinner(false);
     }, 50);
-  }
-
-  function maskHasContent(maskData){
-    for(let i=3; i<maskData.data.length; i+=4){
-      if(maskData.data[i] > 0) return true;
-    }
-    return false;
-  }
-
-  function aplicarMascara(procesada, original, mask){
-    const w = procesada.width;
-    const h = procesada.height;
-    const result = new ImageData(w,h);
-    const p = procesada.data;
-    const o = original.data;
-    const m = mask.data;
-    const r = result.data;
-
-    for(let i=0; i<p.length; i+=4){
-      const alpha = m[i+3] / 255; // mask alpha
-      // If masked (alpha > 0), use original, otherwise use processed
-      const useOriginal = alpha;
-      r[i]   = o[i]*useOriginal   + p[i]*(1-useOriginal);
-      r[i+1] = o[i+1]*useOriginal + p[i+1]*(1-useOriginal);
-      r[i+2] = o[i+2]*useOriginal + p[i+2]*(1-useOriginal);
-      r[i+3] = 255;
-    }
-    return result;
   }
 
   function mezclarConOriginal(procesada, original, factor){
@@ -1036,15 +791,6 @@ void main() {
   }
 
   function detectarBordesSobel(imgData){
-    // Use WebGL if available
-    if(webglAvailable){
-      const params = obtenerParametros();
-      return applyWebGLFilter(imgData, 'sobel', {
-        u_threshold: params.umbral
-      });
-    }
-
-    // Fallback to CPU
     const w = imgData.width;
     const h = imgData.height;
     const src = imgData.data;
@@ -1089,7 +835,7 @@ void main() {
     return imgData;
   }
 
-  // ========== Original Effects (optimized) ==========
+  // ========== Effects ==========
   function aplicarNeon(imgData, params){
     const edges = detectarBordesSobel(imgData);
     const w = imgData.width, h = imgData.height;
@@ -1117,7 +863,6 @@ void main() {
   function aplicarCartoon(imgData, params){
     const res = cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 10);
     const edges = detectarBordesSobel(imgData);
-    const w = imgData.width, h = imgData.height;
     const dst = res.data;
     const e = edges.data;
     const umbral = params.umbral;
@@ -1132,7 +877,6 @@ void main() {
   }
 
   function aplicarSimpsons(imgData, params){
-    const w = imgData.width, h = imgData.height;
     const d = imgData.data;
     for(let i=0;i<d.length;i+=4){
       const r=d[i], g=d[i+1], b=d[i+2];
@@ -1182,13 +926,12 @@ void main() {
   }
 
   function aplicarPosterizado(imgData, params){
-    const res = cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 6);
-    return res;
+    return cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 6);
   }
 
   function aplicarOleo(imgData, params){
-    const radius = 3;
-    const intensity = 20;
+    const radius = 2; // Reducido para iOS
+    const intensity = 15;
     const w = imgData.width, h = imgData.height;
     const src = imgData.data;
     const out = ctx.createImageData(w,h);
@@ -1224,30 +967,14 @@ void main() {
           dst[o+1]=maxBin.g/maxBin.count;
           dst[o+2]=maxBin.b/maxBin.count;
           dst[o+3]=255;
-        }else{
-          dst[o]=dst[o+1]=dst[o+2]=0;
-          dst[o+3]=255;
         }
       }
     }
     return out;
   }
 
-  // ========== New Effects ==========
   function aplicarAcuarela(imgData, params){
-    // Watercolor: blur + edge-preserving + color bleeding
-    let result = new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height);
-    
-    if(webglAvailable){
-      result = applyWebGLFilter(result, 'blur', {u_blurAmount: 4.0});
-    }else{
-      // Simple box blur fallback
-      result = simpleBlur(result, 4);
-    }
-    
-    result = cuantizarColor(result, 12);
-    
-    // Add subtle edges
+    let result = cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 12);
     const edges = detectarBordesSobel(imgData);
     const e = edges.data;
     const d = result.data;
@@ -1263,13 +990,11 @@ void main() {
   }
 
   function aplicarComicBW(imgData, params){
-    // High contrast B&W comic style
     const w = imgData.width, h = imgData.height;
     const src = imgData.data;
     const out = ctx.createImageData(w,h);
     const dst = out.data;
 
-    // Convert to high-contrast grayscale
     for(let i=0;i<src.length;i+=4){
       const gray = (src[i]+src[i+1]+src[i+2])/3;
       const threshold = 128;
@@ -1278,7 +1003,6 @@ void main() {
       dst[i+3]=255;
     }
 
-    // Add strong edges
     const edges = detectarBordesSobel(imgData);
     const e = edges.data;
     for(let i=0;i<e.length;i+=4){
@@ -1286,12 +1010,10 @@ void main() {
         dst[i]=dst[i+1]=dst[i+2]=0;
       }
     }
-
     return out;
   }
 
   function aplicarGlitch(imgData, params){
-    // RGB channel shift glitch effect
     const w = imgData.width, h = imgData.height;
     const src = imgData.data;
     const out = ctx.createImageData(w,h);
@@ -1299,208 +1021,32 @@ void main() {
 
     const shiftR = 5;
     const shiftG = -3;
-    const shiftB = 0;
 
     for(let y=0;y<h;y++){
       for(let x=0;x<w;x++){
         const idx = (y*w+x)*4;
-        
         const xR = clamp(x+shiftR, 0, w-1);
         const xG = clamp(x+shiftG, 0, w-1);
-        const xB = clamp(x+shiftB, 0, w-1);
 
         dst[idx]   = src[(y*w+xR)*4];
         dst[idx+1] = src[(y*w+xG)*4+1];
-        dst[idx+2] = src[(y*w+xB)*4+2];
+        dst[idx+2] = src[(y*w+x)*4+2];
         dst[idx+3] = 255;
       }
     }
 
-    // Add random scanlines
     for(let y=0;y<h;y+=3){
       if(Math.random() > 0.7){
         for(let x=0;x<w;x++){
           const idx = (y*w+x)*4;
-          dst[idx] = clamp(dst[idx]*0.7, 0, 255);
-          dst[idx+1] = clamp(dst[idx+1]*0.7, 0, 255);
-          dst[idx+2] = clamp(dst[idx+2]*0.7, 0, 255);
+          dst[idx] *= 0.7;
+          dst[idx+1] *= 0.7;
+          dst[idx+2] *= 0.7;
         }
       }
     }
-
     return out;
   }
-
-  function aplicarBlurBackground(imgData, params){
-    // Simple center-focused blur (simulates portrait mode)
-    // In production, this would use face detection
-    const w = imgData.width, h = imgData.height;
-    let blurred = imgData;
-    
-    if(webglAvailable){
-      blurred = applyWebGLFilter(imgData, 'blur', {u_blurAmount: 8.0});
-    }else{
-      blurred = simpleBlur(new ImageData(new Uint8ClampedArray(imgData.data), w, h), 8);
-    }
-
-    // Create radial mask (center sharp, edges blurred)
-    const src = imgData.data;
-    const blur = blurred.data;
-    const out = ctx.createImageData(w,h);
-    const dst = out.data;
-
-    const centerX = w/2;
-    const centerY = h/2;
-    const maxDist = Math.sqrt(centerX*centerX + centerY*centerY);
-
-    for(let y=0;y<h;y++){
-      for(let x=0;x<w;x++){
-        const dx = x - centerX;
-        const dy = y - centerY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        const blurFactor = clamp(dist / maxDist, 0, 1);
-        
-        const idx = (y*w+x)*4;
-        dst[idx]   = src[idx]*(1-blurFactor) + blur[idx]*blurFactor;
-        dst[idx+1] = src[idx+1]*(1-blurFactor) + blur[idx+1]*blurFactor;
-        dst[idx+2] = src[idx+2]*(1-blurFactor) + blur[idx+2]*blurFactor;
-        dst[idx+3] = 255;
-      }
-    }
-
-    return out;
-  }
-
-  function simpleBlur(imgData, radius){
-    const w = imgData.width, h = imgData.height;
-    const src = imgData.data;
-    const out = ctx.createImageData(w,h);
-    const dst = out.data;
-
-    for(let y=0;y<h;y++){
-      for(let x=0;x<w;x++){
-        let r=0,g=0,b=0,count=0;
-        for(let yy=-radius;yy<=radius;yy++){
-          for(let xx=-radius;xx<=radius;xx++){
-            const ny = clamp(y+yy, 0, h-1);
-            const nx = clamp(x+xx, 0, w-1);
-            const idx = (ny*w+nx)*4;
-            r+=src[idx];
-            g+=src[idx+1];
-            b+=src[idx+2];
-            count++;
-          }
-        }
-        const o = (y*w+x)*4;
-        dst[o] = r/count;
-        dst[o+1] = g/count;
-        dst[o+2] = b/count;
-        dst[o+3] = 255;
-      }
-    }
-    return out;
-  }
-
-  // ========== Mask Painting ==========
-  function toggleMaskMode(){
-    maskMode = !maskMode;
-    canvasMask.classList.toggle('active', maskMode);
-    modeIndicator.classList.toggle('visible', maskMode);
-    maskControls.classList.toggle('visible', maskMode);
-    btnMaskMode.textContent = maskMode ? '❌ Desactivar pincel' : 'Activar modo pincel';
-    btnMaskMode.className = maskMode ? 'accent' : 'ghost';
-  }
-
-  function drawOnMask(x, y){
-    if(!maskMode || !maskData) return;
-    const size = parseInt(brushSize.value);
-    const erase = brushEraser.checked;
-    
-    ctxMask.globalCompositeOperation = erase ? 'destination-out' : 'source-over';
-    ctxMask.fillStyle = 'rgba(255,0,0,0.5)';
-    ctxMask.beginPath();
-    ctxMask.arc(x, y, size/2, 0, Math.PI*2);
-    ctxMask.fill();
-    
-    maskData = ctxMask.getImageData(0, 0, canvasMask.width, canvasMask.height);
-  }
-
-  canvasMask.addEventListener('mousedown', e => {
-    if(!maskMode) return;
-    painting = true;
-    const rect = canvasMask.getBoundingClientRect();
-    const scaleX = canvasMask.width / rect.width;
-    const scaleY = canvasMask.height / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-    drawOnMask(x, y);
-  });
-
-  canvasMask.addEventListener('mousemove', e => {
-    if(!maskMode || !painting) return;
-    const rect = canvasMask.getBoundingClientRect();
-    const scaleX = canvasMask.width / rect.width;
-    const scaleY = canvasMask.height / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-    drawOnMask(x, y);
-  });
-
-  canvasMask.addEventListener('mouseup', () => {
-    if(painting){
-      painting = false;
-      aplicarEfectoSeleccionadoDebounced();
-    }
-  });
-
-  canvasMask.addEventListener('mouseleave', () => {
-    painting = false;
-  });
-
-  // Touch support
-  canvasMask.addEventListener('touchstart', e => {
-    if(!maskMode) return;
-    e.preventDefault();
-    painting = true;
-    const rect = canvasMask.getBoundingClientRect();
-    const scaleX = canvasMask.width / rect.width;
-    const scaleY = canvasMask.height / rect.height;
-    const touch = e.touches[0];
-    const x = (touch.clientX - rect.left) * scaleX;
-    const y = (touch.clientY - rect.top) * scaleY;
-    drawOnMask(x, y);
-  });
-
-  canvasMask.addEventListener('touchmove', e => {
-    if(!maskMode || !painting) return;
-    e.preventDefault();
-    const rect = canvasMask.getBoundingClientRect();
-    const scaleX = canvasMask.width / rect.width;
-    const scaleY = canvasMask.height / rect.height;
-    const touch = e.touches[0];
-    const x = (touch.clientX - rect.left) * scaleX;
-    const y = (touch.clientY - rect.top) * scaleY;
-    drawOnMask(x, y);
-  });
-
-  canvasMask.addEventListener('touchend', () => {
-    if(painting){
-      painting = false;
-      aplicarEfectoSeleccionadoDebounced();
-    }
-  });
-
-  btnClearMask.addEventListener('click', () => {
-    if(maskData){
-      ctxMask.clearRect(0, 0, canvasMask.width, canvasMask.height);
-      maskData = ctxMask.createImageData(canvasMask.width, canvasMask.height);
-      aplicarEfectoSeleccionadoDebounced();
-    }
-  });
-
-  brushSize.addEventListener('input', () => {
-    valBrushSize.textContent = brushSize.value + 'px';
-  });
 
   // ========== Presets ==========
   function savePreset(){
@@ -1541,7 +1087,7 @@ void main() {
       card.innerHTML = `
         <div class="name">${preset.name}</div>
         <div class="effect">${preset.efecto}</div>
-        <div class="delete" data-index="${index}">🗑️ Borrar</div>
+        <div class="delete" data-index="${index}">🗑️</div>
       `;
       
       card.addEventListener('click', e => {
@@ -1591,8 +1137,7 @@ void main() {
       oleo: {umbral:60, glow:10, nitidez:5, mezcla:90, color:'#ffb347', grosor:2, soloContornos:false, invertir:false},
       acuarela: {umbral:50, glow:20, nitidez:0, mezcla:85, color:'#87ceeb', grosor:2, soloContornos:false, invertir:false},
       'comic-bw': {umbral:90, glow:10, nitidez:30, mezcla:70, color:'#000000', grosor:4, soloContornos:false, invertir:false},
-      glitch: {umbral:80, glow:25, nitidez:15, mezcla:90, color:'#ff00ff', grosor:3, soloContornos:false, invertir:false},
-      'blur-bg': {umbral:70, glow:15, nitidez:20, mezcla:100, color:'#ffffff', grosor:3, soloContornos:false, invertir:false}
+      glitch: {umbral:80, glow:25, nitidez:15, mezcla:90, color:'#ff00ff', grosor:3, soloContornos:false, invertir:false}
     };
 
     const p = presets[efecto] || presets.neon;
@@ -1631,18 +1176,13 @@ void main() {
   }
 
   // ========== Event Listeners ==========
-  fileInput.addEventListener('change', e => cargarImagen(e.target.files[0]));
-
-  zonaDrop.addEventListener('dragover', e => {
-    e.preventDefault();
-    zonaDrop.classList.add('dragover');
-  });
-  zonaDrop.addEventListener('dragleave', () => zonaDrop.classList.remove('dragover'));
-  zonaDrop.addEventListener('drop', e => {
-    e.preventDefault();
-    zonaDrop.classList.remove('dragover');
-    cargarImagen(e.dataTransfer.files[0]);
-  });
+  
+  // FIX iOS: Usar addEventListener normal, NO onchange en input oculto
+  fileInput.addEventListener('change', e => {
+    log('📂 Change event disparado');
+    const archivo = e.target.files[0];
+    cargarImagen(archivo);
+  }, false);
 
   selectEfecto.addEventListener('change', () => {
     restablecerAjustesPorEfecto();
@@ -1661,6 +1201,7 @@ void main() {
   });
 
   btnAplicar.addEventListener('click', aplicarEfectoSeleccionado);
+  
   btnRestablecer.addEventListener('click', () => {
     restablecerAjustesPorEfecto();
     if(imagenOriginal){
@@ -1670,24 +1211,26 @@ void main() {
   });
 
   btnDescargar.addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = `efecto-${selectEfecto.value}-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    try {
+      const link = document.createElement('a');
+      link.download = `efecto-${selectEfecto.value}-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      log('✅ Descarga iniciada');
+    } catch(e) {
+      log(`❌ Error descarga: ${e.message}`);
+    }
   });
 
-  btnMaskMode.addEventListener('click', toggleMaskMode);
   btnSavePreset.addEventListener('click', savePreset);
 
   // ========== Initialization ==========
-  initWebGL();
   restablecerAjustesPorEfecto();
   actualizarVisibilidadControles();
   actualizarEtiquetasSliders();
   loadPresets();
 
-  console.log('%c✨ Editor de Efectos Artísticos Pro cargado', 'color:#00f5ff;font-size:16px;font-weight:bold');
-  console.log(`%cWebGL: ${webglAvailable ? '✅ Activo' : '⚠️ Fallback Canvas 2D'}`, 'color:#0f0');
+  log('✅ App lista - Optimizada para iPhone 16 Pro');
 })();
 </script>
 
