@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Editor de Efectos Artísticos Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#141414;
+    --accent:#ff5c5c;
+    --accent-soft:#ffb347;
+    --accent-cyan:#00d4ff;
+    --text:#ffffff;
+    --muted:#888888;
+    --border:#2a2a2a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+  body{
+    background:radial-gradient(circle at top,#1a1a1a 0,#000 60%,#000 100%);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:12px;
+  }
+  .app{
+    width:100%;
+    max-width:1400px;
+    background:var(--bg);
+    border-radius:20px;
+    box-shadow:0 0 60px rgba(255,92,92,0.15);
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  header{
+    padding:16px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:linear-gradient(135deg,#0f0f0f,#1a1a1a 40%,#222);
+  }
+  header h1{
+    font-size:1.2rem;
+    letter-spacing:0.04em;
+    background:linear-gradient(120deg,#ff5c5c,#ffb347,#00d4ff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .badge{
+    font-size:0.65rem;
+    padding:3px 8px;
+    border-radius:12px;
+    background:#222;
+    color:var(--accent-cyan);
+    border:1px solid #333;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  main{display:flex;flex-direction:column;}
+  .layout{display:flex;flex-direction:column;}
+  @media(min-width:980px){
+    .layout{flex-direction:row;}
+  }
+  .panel{padding:16px;}
+  .panel.controls{
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    min-width:280px;
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  @media(min-width:980px){
+    .panel.controls{width:360px;}
+  }
+  .panel.preview{
+    flex:1;
+    background:#000;
+  }
+  .section-title{
+    font-size:0.85rem;
+    text-transform:uppercase;
+    color:var(--muted);
+    letter-spacing:0.15em;
+    margin:16px 0 10px;
+    border-bottom:1px solid #222;
+    padding-bottom:6px;
+  }
+  .section-title:first-child{margin-top:0;}
+  .input-group{margin-bottom:12px;}
+  label{
+    display:block;
+    font-size:0.82rem;
+    margin-bottom:5px;
+    color:#ccc;
+  }
+  .file-drop{
+    border:2px dashed var(--border);
+    border-radius:14px;
+    padding:18px;
+    text-align:center;
+    cursor:pointer;
+    position:relative;
+    background:#0f0f0f;
+    transition:all 0.2s;
+  }
+  .file-drop.dragover{
+    border-color:var(--accent);
+    background:#1a1a1a;
+    transform:scale(1.02);
+  }
+  .file-drop input[type="file"]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+  }
+  .file-drop p{
+    font-size:0.75rem;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  select, input[type="range"], input[type="color"], input[type="text"]{width:100%;}
+  select, input[type="text"]{
+    padding:8px 10px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#0a0a0a;
+    color:var(--text);
+    font-size:0.85rem;
+  }
+  .range-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .range-value{
+    min-width:40px;
+    text-align:right;
+    font-size:0.8rem;
+    color:var(--accent-soft);
+    font-weight:600;
+  }
+  input[type="range"]{
+    -webkit-appearance:none;
+    appearance:none;
+    height:5px;
+    border-radius:999px;
+    background:linear-gradient(to right,#222,#444);
+    outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent-soft));
+    cursor:pointer;
+    border:2px solid #000;
+    box-shadow:0 0 8px rgba(255,92,92,0.5);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:var(--accent);
+    border:none;
+    cursor:pointer;
+  }
+  input[type="color"]{
+    border-radius:10px;
+    border:1px solid var(--border);
+    height:38px;
+    padding:2px;
+    background:#000;
+  }
+  .toggles{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:4px;
+  }
+  .toggle{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:0.76rem;
+    color:#aaa;
+    cursor:pointer;
+  }
+  .toggle input{cursor:pointer;}
+  .buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+  }
+  button{
+    border:none;
+    border-radius:999px;
+    padding:9px 16px;
+    font-size:0.8rem;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#1a1a1a;
+    color:var(--text);
+    transition:all 0.2s;
+    border:1px solid transparent;
+  }
+  button.primary{
+    background:linear-gradient(120deg,#ff5c5c,#ffb347);
+    color:#000;
+    font-weight:600;
+    box-shadow:0 0 16px rgba(255,92,92,0.4);
+  }
+  button.secondary{
+    background:#222;
+    border-color:#333;
+  }
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--border);
+  }
+  button.accent{
+    background:var(--accent-cyan);
+    color:#000;
+    font-weight:600;
+  }
+  button:disabled{
+    opacity:0.3;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+  button:not(:disabled):hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(255,255,255,0.1);
+  }
+  button:not(:disabled):active{
+    transform:scale(0.96);
+  }
+  .hint{
+    font-size:0.7rem;
+    color:var(--muted);
+    margin-top:6px;
+    line-height:1.4;
+  }
+  .canvas-wrapper{
+    position:relative;
+    width:100%;
+    min-height:500px;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  canvas{
+    max-width:100%;
+    max-height:85vh;
+    background:#000;
+    display:block;
+  }
+  #canvasMask{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    opacity:0.7;
+  }
+  #canvasMask.active{
+    pointer-events:all;
+    cursor:crosshair;
+  }
+  .placeholder{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.9rem;
+    padding:40px 20px;
+  }
+  .spinner{
+    position:absolute;
+    inset:auto 16px 16px auto;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    border:4px solid rgba(255,255,255,0.1);
+    border-top-color:var(--accent-soft);
+    animation:spin 0.8s linear infinite;
+    display:none;
+    z-index:10;
+  }
+  .spinner.visible{display:block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .mode-indicator{
+    position:absolute;
+    top:16px;
+    left:16px;
+    background:rgba(0,0,0,0.8);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:0.75rem;
+    color:var(--accent-cyan);
+    border:1px solid rgba(0,212,255,0.3);
+    display:none;
+  }
+  .mode-indicator.visible{display:block;}
+  .preset-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+    gap:8px;
+    margin-top:8px;
+  }
+  .preset-card{
+    background:#1a1a1a;
+    border:1px solid #333;
+    border-radius:10px;
+    padding:8px;
+    cursor:pointer;
+    text-align:center;
+    transition:all 0.2s;
+  }
+  .preset-card:hover{
+    background:#252525;
+    border-color:var(--accent);
+    transform:translateY(-2px);
+  }
+  .preset-card .name{
+    font-size:0.75rem;
+    color:#fff;
+    margin-bottom:3px;
+  }
+  .preset-card .effect{
+    font-size:0.65rem;
+    color:var(--muted);
+  }
+  .preset-card .delete{
+    font-size:0.7rem;
+    color:#f44;
+    margin-top:4px;
+    opacity:0.7;
+  }
+  .preset-card .delete:hover{opacity:1;}
+  .mask-controls{
+    display:none;
+    background:#1a1a1a;
+    padding:10px;
+    border-radius:10px;
+    margin-top:8px;
+    border:1px solid #333;
+  }
+  .mask-controls.visible{display:block;}
+  .webgl-badge{
+    font-size:0.65rem;
+    color:#0f0;
+    background:#001a00;
+    padding:2px 6px;
+    border-radius:6px;
+    border:1px solid #0a0;
+    margin-left:8px;
+  }
+</style>
+</head>
+<body>
+<div class="app" aria-label="Editor de efectos artísticos profesional">
+  <header>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <h1>✨ Editor de Efectos Artísticos Pro</h1>
+      <span class="badge">WebGL Acelerado</span>
+      <span class="badge">IA Ready</span>
+    </div>
+    <span style="font-size:0.75rem;color:var(--muted);">100% privado · Todo en tu navegador</span>
+  </header>
+
+  <main>
+    <div class="layout">
+      <!-- Panel de controles -->
+      <section class="panel controls" aria-label="Controles de edición">
+        
+        <div class="section-title">📸 Imagen</div>
+        <div class="input-group">
+          <div class="file-drop" id="zonaDrop">
+            <strong>📁 Subir imagen</strong>
+            <p>Haz clic o arrastra (JPG/PNG/WEBP)</p>
+            <input id="fileInput" type="file" accept="image/*" aria-label="Subir imagen" />
+          </div>
+        </div>
+
+        <div class="section-title">🎨 Efecto</div>
+        <div class="input-group">
+          <label for="selectEfecto">Estilo artístico:</label>
+          <select id="selectEfecto" aria-label="Elegir efecto artístico">
+            <optgroup label="🔥 Clásicos">
+              <option value="neon">⚡ Neón intenso</option>
+              <option value="cartoon">🎭 Cartoon clásico</option>
+              <option value="simpsons">💛 Estilo Simpsons</option>
+              <option value="boceto">✏️ Boceto a lápiz</option>
+              <option value="poster">🎨 Posterizado pop</option>
+              <option value="oleo">🖌️ Pintura al óleo</option>
+            </optgroup>
+            <optgroup label="✨ Nuevos Efectos">
+              <option value="acuarela">💧 Acuarela</option>
+              <option value="comic-bw">📰 Cómic blanco y negro</option>
+              <option value="glitch">📺 Glitch RGB</option>
+              <option value="blur-bg">🌫️ Desenfoque de fondo (experimental)</option>
+            </optgroup>
+          </select>
+          <span class="hint">💡 Los efectos usan WebGL para máximo rendimiento</span>
+        </div>
+
+        <div class="section-title">⚙️ Ajustes</div>
+
+        <div class="input-group" id="grupoUmbral">
+          <label for="umbralBordes">Umbral de detección de bordes</label>
+          <div class="range-row">
+            <input id="umbralBordes" type="range" min="20" max="150" value="80" />
+            <span class="range-value" id="valUmbral">80</span>
+          </div>
+        </div>
+
+        <div class="input-group" id="grupoGlow">
+          <label for="intensidadGlow">Intensidad de glow / brillo</label>
+          <div class="range-row">
+            <input id="intensidadGlow" type="range" min="5" max="50" value="25" />
+            <span class="range-value" id="valGlow">25</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="nitidez">Nitidez</label>
+          <div class="range-row">
+            <input id="nitidez" type="range" min="-50" max="100" value="20" />
+            <span class="range-value" id="valNitidez">20</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="mezcla">Mezcla con original (%)</label>
+          <div class="range-row">
+            <input id="mezcla" type="range" min="0" max="100" value="70" />
+            <span class="range-value" id="valMezcla">70%</span>
+          </div>
+        </div>
+
+        <div class="input-group" id="grupoColor">
+          <label for="colorPrincipal">Color principal</label>
+          <input id="colorPrincipal" type="color" value="#ff4500" />
+        </div>
+
+        <div class="input-group" id="grupoGrosor">
+          <label for="grosorLineas">Grosor de líneas</label>
+          <div class="range-row">
+            <input id="grosorLineas" type="range" min="1" max="10" value="3" />
+            <span class="range-value" id="valGrosor">3px</span>
+          </div>
+        </div>
+
+        <div class="toggles">
+          <label class="toggle">
+            <input id="soloContornos" type="checkbox" />
+            <span>Solo contornos</span>
+          </label>
+          <label class="toggle">
+            <input id="invertir" type="checkbox" />
+            <span>Invertir</span>
+          </label>
+          <label class="toggle">
+            <input id="splitView" type="checkbox" />
+            <span>Vista dividida</span>
+          </label>
+        </div>
+
+        <div class="section-title">🖌️ Máscara personalizada</div>
+        <div class="buttons">
+          <button id="btnMaskMode" class="ghost">Activar modo pincel</button>
+          <button id="btnClearMask" class="ghost" disabled>Limpiar máscara</button>
+        </div>
+        <div class="mask-controls" id="maskControls">
+          <label for="brushSize">Tamaño del pincel</label>
+          <div class="range-row">
+            <input id="brushSize" type="range" min="5" max="100" value="30" />
+            <span class="range-value" id="valBrushSize">30px</span>
+          </div>
+          <label class="toggle" style="margin-top:8px;">
+            <input id="brushEraser" type="checkbox" />
+            <span>Modo borrador</span>
+          </label>
+          <p class="hint">Pinta las zonas donde NO quieres aplicar el efecto</p>
+        </div>
+
+        <div class="section-title">💾 Presets guardados</div>
+        <div class="input-group">
+          <input id="presetName" type="text" placeholder="Nombre del preset..." />
+          <div class="buttons">
+            <button id="btnSavePreset" class="secondary">Guardar preset</button>
+          </div>
+        </div>
+        <div class="preset-grid" id="presetGrid"></div>
+
+        <div class="section-title">🚀 Acciones</div>
+        <div class="buttons">
+          <button class="primary" id="btnAplicar">Aplicar efecto</button>
+          <button class="secondary" id="btnRestablecer">Restablecer</button>
+        </div>
+        <div class="buttons">
+          <button class="accent" id="btnDescargar" disabled>⬇️ Descargar PNG</button>
+        </div>
+        
+      </section>
+
+      <!-- Panel de vista previa -->
+      <section class="panel preview" aria-label="Vista previa de la imagen">
+        <div class="canvas-wrapper">
+          <canvas id="canvas"></canvas>
+          <canvas id="canvasMask"></canvas>
+          <div id="placeholder" class="placeholder">
+            🖼️ Sube una imagen para empezar<br>
+            <span style="font-size:0.75rem;color:#666;">Acepta JPG, PNG, WEBP</span>
+          </div>
+          <div id="spinner" class="spinner" aria-hidden="true"></div>
+          <div id="modeIndicator" class="mode-indicator">🖌️ Modo pincel activo</div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- WebGL Shaders -->
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec2 a_position;
+attribute vec2 a_texCoord;
+varying vec2 v_texCoord;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+  v_texCoord = a_texCoord;
+}
+</script>
+
+<script id="fragment-sobel" type="x-shader/x-fragment">
+precision mediump float;
+uniform sampler2D u_image;
+uniform vec2 u_textureSize;
+uniform float u_threshold;
+varying vec2 v_texCoord;
+
+void main() {
+  vec2 onePixel = 1.0 / u_textureSize;
+  
+  // Sobel kernels
+  float gx = 0.0;
+  float gy = 0.0;
+  
+  vec3 tl = texture2D(u_image, v_texCoord + vec2(-onePixel.x, -onePixel.y)).rgb;
+  vec3 tm = texture2D(u_image, v_texCoord + vec2(0.0, -onePixel.y)).rgb;
+  vec3 tr = texture2D(u_image, v_texCoord + vec2(onePixel.x, -onePixel.y)).rgb;
+  vec3 ml = texture2D(u_image, v_texCoord + vec2(-onePixel.x, 0.0)).rgb;
+  vec3 mr = texture2D(u_image, v_texCoord + vec2(onePixel.x, 0.0)).rgb;
+  vec3 bl = texture2D(u_image, v_texCoord + vec2(-onePixel.x, onePixel.y)).rgb;
+  vec3 bm = texture2D(u_image, v_texCoord + vec2(0.0, onePixel.y)).rgb;
+  vec3 br = texture2D(u_image, v_texCoord + vec2(onePixel.x, onePixel.y)).rgb;
+  
+  float gtl = dot(tl, vec3(0.299, 0.587, 0.114));
+  float gtm = dot(tm, vec3(0.299, 0.587, 0.114));
+  float gtr = dot(tr, vec3(0.299, 0.587, 0.114));
+  float gml = dot(ml, vec3(0.299, 0.587, 0.114));
+  float gmr = dot(mr, vec3(0.299, 0.587, 0.114));
+  float gbl = dot(bl, vec3(0.299, 0.587, 0.114));
+  float gbm = dot(bm, vec3(0.299, 0.587, 0.114));
+  float gbr = dot(br, vec3(0.299, 0.587, 0.114));
+  
+  gx = -gtl - 2.0*gml - gbl + gtr + 2.0*gmr + gbr;
+  gy = -gtl - 2.0*gtm - gtr + gbl + 2.0*gbm + gbr;
+  
+  float mag = sqrt(gx*gx + gy*gy);
+  float edge = mag > u_threshold/255.0 ? 1.0 : 0.0;
+  
+  gl_FragColor = vec4(vec3(edge), 1.0);
+}
+</script>
+
+<script id="fragment-blur" type="x-shader/x-fragment">
+precision mediump float;
+uniform sampler2D u_image;
+uniform vec2 u_textureSize;
+uniform float u_blurAmount;
+varying vec2 v_texCoord;
+
+void main() {
+  vec2 onePixel = 1.0 / u_textureSize;
+  vec4 color = vec4(0.0);
+  float total = 0.0;
+  
+  int radius = int(u_blurAmount);
+  for(int y = -10; y <= 10; y++) {
+    for(int x = -10; x <= 10; x++) {
+      if(abs(float(x)) > u_blurAmount || abs(float(y)) > u_blurAmount) continue;
+      vec2 offset = vec2(float(x), float(y)) * onePixel;
+      color += texture2D(u_image, v_texCoord + offset);
+      total += 1.0;
+    }
+  }
+  
+  gl_FragColor = color / total;
+}
+</script>
+
+<script id="fragment-passthrough" type="x-shader/x-fragment">
+precision mediump float;
+uniform sampler2D u_image;
+varying vec2 v_texCoord;
+void main() {
+  gl_FragColor = texture2D(u_image, v_texCoord);
+}
+</script>
+
+<script>
+(() => {
+  // ========== DOM Elements ==========
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const canvasMask = document.getElementById('canvasMask');
+  const ctxMask = canvasMask.getContext('2d');
+  
+  const fileInput = document.getElementById('fileInput');
+  const zonaDrop = document.getElementById('zonaDrop');
+  const selectEfecto = document.getElementById('selectEfecto');
+  const placeholder = document.getElementById('placeholder');
+  const spinner = document.getElementById('spinner');
+  const modeIndicator = document.getElementById('modeIndicator');
+
+  const umbralBordes = document.getElementById('umbralBordes');
+  const intensidadGlow = document.getElementById('intensidadGlow');
+  const nitidez = document.getElementById('nitidez');
+  const mezcla = document.getElementById('mezcla');
+  const colorPrincipal = document.getElementById('colorPrincipal');
+  const grosorLineas = document.getElementById('grosorLineas');
+  const soloContornos = document.getElementById('soloContornos');
+  const invertir = document.getElementById('invertir');
+  const splitView = document.getElementById('splitView');
+
+  const valUmbral = document.getElementById('valUmbral');
+  const valGlow = document.getElementById('valGlow');
+  const valNitidez = document.getElementById('valNitidez');
+  const valMezcla = document.getElementById('valMezcla');
+  const valGrosor = document.getElementById('valGrosor');
+
+  const grupoGlow = document.getElementById('grupoGlow');
+  const grupoColor = document.getElementById('grupoColor');
+  const grupoGrosor = document.getElementById('grupoGrosor');
+  const grupoUmbral = document.getElementById('grupoUmbral');
+
+  const btnAplicar = document.getElementById('btnAplicar');
+  const btnRestablecer = document.getElementById('btnRestablecer');
+  const btnDescargar = document.getElementById('btnDescargar');
+  const btnMaskMode = document.getElementById('btnMaskMode');
+  const btnClearMask = document.getElementById('btnClearMask');
+  const maskControls = document.getElementById('maskControls');
+  const brushSize = document.getElementById('brushSize');
+  const brushEraser = document.getElementById('brushEraser');
+  const valBrushSize = document.getElementById('valBrushSize');
+  const btnSavePreset = document.getElementById('btnSavePreset');
+  const presetName = document.getElementById('presetName');
+  const presetGrid = document.getElementById('presetGrid');
+
+  // ========== State ==========
+  let imagenOriginal = null;
+  let imagenBase = null;
+  let processingTimeout = null;
+  let maskMode = false;
+  let painting = false;
+  let maskData = null;
+  let webglAvailable = false;
+  let gl = null;
+  let webglPrograms = {};
+
+  // ========== WebGL Setup ==========
+  function initWebGL() {
+    try {
+      const glCanvas = document.createElement('canvas');
+      gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+      if (!gl) throw new Error('WebGL not supported');
+      webglAvailable = true;
+      console.log('✅ WebGL initialized successfully');
+      setupWebGLPrograms();
+    } catch(e) {
+      console.warn('⚠️ WebGL not available, using Canvas 2D fallback');
+      webglAvailable = false;
+    }
+  }
+
+  function compileShader(source, type) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+      return null;
+    }
+    return shader;
+  }
+
+  function createProgram(vertexSource, fragmentSource) {
+    const vertexShader = compileShader(vertexSource, gl.VERTEX_SHADER);
+    const fragmentShader = compileShader(fragmentSource, gl.FRAGMENT_SHADER);
+    const program = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error('Program link error:', gl.getProgramInfoLog(program));
+      return null;
+    }
+    return program;
+  }
+
+  function setupWebGLPrograms() {
+    const vertexSource = document.getElementById('vertex-shader').textContent;
+    const sobelSource = document.getElementById('fragment-sobel').textContent;
+    const blurSource = document.getElementById('fragment-blur').textContent;
+    const passthroughSource = document.getElementById('fragment-passthrough').textContent;
+
+    webglPrograms.sobel = createProgram(vertexSource, sobelSource);
+    webglPrograms.blur = createProgram(vertexSource, blurSource);
+    webglPrograms.passthrough = createProgram(vertexSource, passthroughSource);
+  }
+
+  function applyWebGLFilter(imageData, programName, uniforms = {}) {
+    if (!webglAvailable || !webglPrograms[programName]) return imageData;
+
+    const w = imageData.width;
+    const h = imageData.height;
+    
+    gl.canvas.width = w;
+    gl.canvas.height = h;
+    gl.viewport(0, 0, w, h);
+
+    const program = webglPrograms[programName];
+    gl.useProgram(program);
+
+    // Setup buffers
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1, 1, -1, -1, 1,
+      -1, 1, 1, -1, 1, 1
+    ]), gl.STATIC_DRAW);
+
+    const texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      0, 0, 1, 0, 0, 1,
+      0, 1, 1, 0, 1, 1
+    ]), gl.STATIC_DRAW);
+
+    const positionLocation = gl.getAttribLocation(program, 'a_position');
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.enableVertexAttribArray(texCoordLocation);
+    gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+    // Create texture from imageData
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+
+    // Set uniforms
+    const textureSizeLocation = gl.getUniformLocation(program, 'u_textureSize');
+    if (textureSizeLocation) {
+      gl.uniform2f(textureSizeLocation, w, h);
+    }
+
+    Object.keys(uniforms).forEach(key => {
+      const location = gl.getUniformLocation(program, key);
+      if (location) {
+        const value = uniforms[key];
+        if (typeof value === 'number') {
+          gl.uniform1f(location, value);
+        }
+      }
+    });
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    // Read back pixels
+    const pixels = new Uint8ClampedArray(w * h * 4);
+    gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    
+    // Clean up
+    gl.deleteTexture(texture);
+    gl.deleteBuffer(positionBuffer);
+    gl.deleteBuffer(texCoordBuffer);
+
+    return new ImageData(pixels, w, h);
+  }
+
+  // ========== Utility Functions ==========
+  function mostrarSpinner(mostrar){
+    spinner.classList.toggle('visible', !!mostrar);
+  }
+
+  function clamp(v, min, max){
+    return v < min ? min : (v > max ? max : v);
+  }
+
+  function cargarImagen(archivo){
+    if(!archivo) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        imagenBase = img;
+        redimensionarYGuardarOriginal();
+        btnDescargar.disabled = false;
+        btnClearMask.disabled = false;
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(archivo);
+  }
+
+  function redimensionarYGuardarOriginal(){
+    if(!imagenBase) return;
+    const maxDim = 2000;
+    let w = imagenBase.width;
+    let h = imagenBase.height;
+    const ratio = Math.min(1, maxDim / Math.max(w,h));
+    w = Math.round(w * ratio);
+    h = Math.round(h * ratio);
+    canvas.width = w;
+    canvas.height = h;
+    canvasMask.width = w;
+    canvasMask.height = h;
+    
+    ctx.drawImage(imagenBase, 0, 0, w, h);
+    imagenOriginal = ctx.getImageData(0,0,w,h);
+    
+    // Clear mask
+    maskData = ctxMask.createImageData(w, h);
+    ctxMask.clearRect(0,0,w,h);
+    
+    placeholder.style.display = 'none';
+    aplicarEfectoSeleccionadoDebounced();
+  }
+
+  function hexToRgb(hex){
+    const clean = hex.replace('#','');
+    const bigint = parseInt(clean,16);
+    return {
+      r:(bigint>>16)&255,
+      g:(bigint>>8)&255,
+      b:bigint&255
+    };
+  }
+
+  function obtenerParametros(){
+    return {
+      umbral: parseInt(umbralBordes.value,10),
+      glow: parseInt(intensidadGlow.value,10),
+      nitidez: parseInt(nitidez.value,10),
+      mezcla: parseInt(mezcla.value,10)/100,
+      color: hexToRgb(colorPrincipal.value),
+      grosor: parseInt(grosorLineas.value,10),
+      soloContornos: soloContornos.checked,
+      invertir: invertir.checked
+    };
+  }
+
+  // ========== Effect Processing ==========
+  function aplicarEfectoSeleccionadoDebounced(){
+    if(!imagenOriginal) return;
+    clearTimeout(processingTimeout);
+    processingTimeout = setTimeout(aplicarEfectoSeleccionado, 100);
+  }
+
+  function aplicarEfectoSeleccionado(){
+    if(!imagenOriginal) return;
+    mostrarSpinner(true);
+    
+    setTimeout(() => {
+      const w = imagenOriginal.width;
+      const h = imagenOriginal.height;
+      const imgData = new ImageData(new Uint8ClampedArray(imagenOriginal.data), w, h);
+      let procesada = imgData;
+
+      const params = obtenerParametros();
+      const efecto = selectEfecto.value;
+
+      switch(efecto){
+        case 'neon': procesada = aplicarNeon(procesada, params); break;
+        case 'cartoon': procesada = aplicarCartoon(procesada, params); break;
+        case 'simpsons': procesada = aplicarSimpsons(procesada, params); break;
+        case 'boceto': procesada = aplicarBoceto(procesada, params); break;
+        case 'poster': procesada = aplicarPosterizado(procesada, params); break;
+        case 'oleo': procesada = aplicarOleo(procesada, params); break;
+        case 'acuarela': procesada = aplicarAcuarela(procesada, params); break;
+        case 'comic-bw': procesada = aplicarComicBW(procesada, params); break;
+        case 'glitch': procesada = aplicarGlitch(procesada, params); break;
+        case 'blur-bg': procesada = aplicarBlurBackground(procesada, params); break;
+      }
+
+      if(params.nitidez !== 0){
+        procesada = ajustarNitidez(procesada, params.nitidez);
+      }
+
+      procesada = mezclarConOriginal(procesada, imagenOriginal, params.mezcla);
+
+      if(params.invertir){
+        procesada = invertirColores(procesada);
+      }
+
+      // Apply mask if exists
+      if(maskData && maskHasContent(maskData)){
+        procesada = aplicarMascara(procesada, imagenOriginal, maskData);
+      }
+
+      ctx.clearRect(0,0,w,h);
+      if(splitView.checked){
+        ctx.putImageData(imagenOriginal,0,0);
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = w;
+        tempCanvas.height = h;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.putImageData(procesada,0,0);
+        ctx.drawImage(tempCanvas, Math.floor(w/2),0,Math.ceil(w/2),h, Math.floor(w/2),0,Math.ceil(w/2),h);
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(Math.floor(w/2),0);
+        ctx.lineTo(Math.floor(w/2),h);
+        ctx.stroke();
+      }else{
+        ctx.putImageData(procesada,0,0);
+      }
+
+      mostrarSpinner(false);
+    }, 50);
+  }
+
+  function maskHasContent(maskData){
+    for(let i=3; i<maskData.data.length; i+=4){
+      if(maskData.data[i] > 0) return true;
+    }
+    return false;
+  }
+
+  function aplicarMascara(procesada, original, mask){
+    const w = procesada.width;
+    const h = procesada.height;
+    const result = new ImageData(w,h);
+    const p = procesada.data;
+    const o = original.data;
+    const m = mask.data;
+    const r = result.data;
+
+    for(let i=0; i<p.length; i+=4){
+      const alpha = m[i+3] / 255; // mask alpha
+      // If masked (alpha > 0), use original, otherwise use processed
+      const useOriginal = alpha;
+      r[i]   = o[i]*useOriginal   + p[i]*(1-useOriginal);
+      r[i+1] = o[i+1]*useOriginal + p[i+1]*(1-useOriginal);
+      r[i+2] = o[i+2]*useOriginal + p[i+2]*(1-useOriginal);
+      r[i+3] = 255;
+    }
+    return result;
+  }
+
+  function mezclarConOriginal(procesada, original, factor){
+    const w = original.width, h = original.height;
+    const o = original.data;
+    const p = procesada.data;
+    const out = new Uint8ClampedArray(o.length);
+    for(let i=0;i<o.length;i+=4){
+      out[i]   = clamp(o[i]*(1-factor)   + p[i]*factor,0,255);
+      out[i+1] = clamp(o[i+1]*(1-factor) + p[i+1]*factor,0,255);
+      out[i+2] = clamp(o[i+2]*(1-factor) + p[i+2]*factor,0,255);
+      out[i+3] = 255;
+    }
+    return new ImageData(out,w,h);
+  }
+
+  function invertirColores(imgData){
+    const d = imgData.data;
+    for(let i=0;i<d.length;i+=4){
+      d[i] = 255-d[i];
+      d[i+1] = 255-d[i+1];
+      d[i+2] = 255-d[i+2];
+    }
+    return imgData;
+  }
+
+  function ajustarNitidez(imgData, amount){
+    if(amount === 0) return imgData;
+    const w = imgData.width, h = imgData.height;
+    const src = imgData.data;
+    const out = new Uint8ClampedArray(src.length);
+    const kBase = [0,-1,0,-1,5,-1,0,-1,0];
+    const strength = amount > 0 ? 1 + amount/50 : 1 + amount/100;
+    const k = kBase.map(v => v * strength);
+    for(let y=1;y<h-1;y++){
+      for(let x=1;x<w-1;x++){
+        let r=0,g=0,b=0,ki=0;
+        for(let ky=-1;ky<=1;ky++){
+          for(let kx=-1;kx<=1;kx++){
+            const idx = ((y+ky)*w+(x+kx))*4;
+            const kv = k[ki++];
+            r += src[idx]*kv;
+            g += src[idx+1]*kv;
+            b += src[idx+2]*kv;
+          }
+        }
+        const o = (y*w+x)*4;
+        out[o]   = clamp(r,0,255);
+        out[o+1] = clamp(g,0,255);
+        out[o+2] = clamp(b,0,255);
+        out[o+3] = 255;
+      }
+    }
+    return new ImageData(out,w,h);
+  }
+
+  function detectarBordesSobel(imgData){
+    // Use WebGL if available
+    if(webglAvailable){
+      const params = obtenerParametros();
+      return applyWebGLFilter(imgData, 'sobel', {
+        u_threshold: params.umbral
+      });
+    }
+
+    // Fallback to CPU
+    const w = imgData.width;
+    const h = imgData.height;
+    const src = imgData.data;
+    const out = new Uint8ClampedArray(w*h*4);
+
+    for(let y=1;y<h-1;y++){
+      for(let x=1;x<w-1;x++){
+        let gx=0, gy=0;
+        const kernel = [
+          [((y-1)*w+(x-1))*4, -1, -1],
+          [((y-1)*w+x)*4, 0, -2],
+          [((y-1)*w+(x+1))*4, 1, -1],
+          [(y*w+(x-1))*4, -2, 0],
+          [(y*w+(x+1))*4, 2, 0],
+          [((y+1)*w+(x-1))*4, -1, 1],
+          [((y+1)*w+x)*4, 0, 2],
+          [((y+1)*w+(x+1))*4, 1, 1]
+        ];
+        for(const [idx, kx, ky] of kernel){
+          const gray = (src[idx]+src[idx+1]+src[idx+2])/3;
+          gx += gray * kx;
+          gy += gray * ky;
+        }
+        const mag = Math.sqrt(gx*gx + gy*gy);
+        const v = clamp(mag,0,255);
+        const o = (y*w+x)*4;
+        out[o]=out[o+1]=out[o+2]=v;
+        out[o+3]=255;
+      }
+    }
+    return new ImageData(out,w,h);
+  }
+
+  function cuantizarColor(imgData, niveles){
+    const d = imgData.data;
+    const step = 255/(niveles-1);
+    for(let i=0;i<d.length;i+=4){
+      d[i]   = Math.round(d[i]/step)*step;
+      d[i+1] = Math.round(d[i+1]/step)*step;
+      d[i+2] = Math.round(d[i+2]/step)*step;
+    }
+    return imgData;
+  }
+
+  // ========== Original Effects (optimized) ==========
+  function aplicarNeon(imgData, params){
+    const edges = detectarBordesSobel(imgData);
+    const w = imgData.width, h = imgData.height;
+    const out = ctx.createImageData(w,h);
+    const dst = out.data;
+    const e = edges.data;
+    const color = params.color;
+    const umbral = params.umbral;
+
+    for(let i=0;i<e.length;i+=4){
+      const v = e[i];
+      if(v > umbral){
+        dst[i]=color.r;
+        dst[i+1]=color.g;
+        dst[i+2]=color.b;
+        dst[i+3]=255;
+      }else{
+        dst[i]=dst[i+1]=dst[i+2]=0;
+        dst[i+3]=params.soloContornos?0:255;
+      }
+    }
+    return out;
+  }
+
+  function aplicarCartoon(imgData, params){
+    const res = cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 10);
+    const edges = detectarBordesSobel(imgData);
+    const w = imgData.width, h = imgData.height;
+    const dst = res.data;
+    const e = edges.data;
+    const umbral = params.umbral;
+
+    for(let i=0;i<e.length;i+=4){
+      if(e[i] > umbral){
+        dst[i]=dst[i+1]=dst[i+2]=0;
+        dst[i+3]=255;
+      }
+    }
+    return res;
+  }
+
+  function aplicarSimpsons(imgData, params){
+    const w = imgData.width, h = imgData.height;
+    const d = imgData.data;
+    for(let i=0;i<d.length;i+=4){
+      const r=d[i], g=d[i+1], b=d[i+2];
+      const isSkin = r>g && g>b && r>60 && g>40;
+      if(isSkin){
+        d[i]   = params.color.r;
+        d[i+1] = params.color.g;
+        d[i+2] = params.color.b;
+      }else{
+        const avg=(r+g+b)/3;
+        d[i]   = clamp(avg + (r-avg)*1.3,0,255);
+        d[i+1] = clamp(avg + (g-avg)*1.3,0,255);
+        d[i+2] = clamp(avg + (b-avg)*1.3,0,255);
+      }
+    }
+    const edges = detectarBordesSobel(imgData);
+    const e = edges.data;
+    const umbral = params.umbral;
+    for(let i=0;i<e.length;i+=4){
+      if(e[i] > umbral){
+        d[i]=d[i+1]=d[i+2]=0;
+      }
+    }
+    return imgData;
+  }
+
+  function aplicarBoceto(imgData, params){
+    const w = imgData.width, h = imgData.height;
+    const gray = new Uint8ClampedArray(w*h*4);
+    const src = imgData.data;
+    for(let i=0;i<src.length;i+=4){
+      const g = (src[i]+src[i+1]+src[i+2])/3;
+      gray[i]=gray[i+1]=gray[i+2]=g;
+      gray[i+3]=255;
+    }
+    const grayImg = new ImageData(gray,w,h);
+    const edges = detectarBordesSobel(grayImg);
+    const dst = ctx.createImageData(w,h);
+    const e = edges.data;
+    const umbral = params.umbral;
+    for(let i=0;i<e.length;i+=4){
+      const c = e[i]>umbral ? 0:255;
+      dst.data[i]=dst.data[i+1]=dst.data[i+2]=c;
+      dst.data[i+3]=255;
+    }
+    return dst;
+  }
+
+  function aplicarPosterizado(imgData, params){
+    const res = cuantizarColor(new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height), 6);
+    return res;
+  }
+
+  function aplicarOleo(imgData, params){
+    const radius = 3;
+    const intensity = 20;
+    const w = imgData.width, h = imgData.height;
+    const src = imgData.data;
+    const out = ctx.createImageData(w,h);
+    const dst = out.data;
+    
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        const bins = [];
+        for(let yy=-radius;yy<=radius;yy++){
+          for(let xx=-radius;xx<=radius;xx++){
+            const ny=y+yy, nx=x+xx;
+            if(ny<0||ny>=h||nx<0||nx>=w) continue;
+            const idx=(ny*w+nx)*4;
+            const r=src[idx], g=src[idx+1], b=src[idx+2];
+            const avg=(r+g+b)/3;
+            const bin=Math.floor((avg*intensity)/255);
+            if(!bins[bin]) bins[bin]={count:0,r:0,g:0,b:0};
+            bins[bin].count++;
+            bins[bin].r+=r;
+            bins[bin].g+=g;
+            bins[bin].b+=b;
+          }
+        }
+        let maxBin = null;
+        for(const bin of bins){
+          if(bin && (!maxBin || bin.count > maxBin.count)){
+            maxBin = bin;
+          }
+        }
+        const o=(y*w+x)*4;
+        if(maxBin){
+          dst[o]=maxBin.r/maxBin.count;
+          dst[o+1]=maxBin.g/maxBin.count;
+          dst[o+2]=maxBin.b/maxBin.count;
+          dst[o+3]=255;
+        }else{
+          dst[o]=dst[o+1]=dst[o+2]=0;
+          dst[o+3]=255;
+        }
+      }
+    }
+    return out;
+  }
+
+  // ========== New Effects ==========
+  function aplicarAcuarela(imgData, params){
+    // Watercolor: blur + edge-preserving + color bleeding
+    let result = new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height);
+    
+    if(webglAvailable){
+      result = applyWebGLFilter(result, 'blur', {u_blurAmount: 4.0});
+    }else{
+      // Simple box blur fallback
+      result = simpleBlur(result, 4);
+    }
+    
+    result = cuantizarColor(result, 12);
+    
+    // Add subtle edges
+    const edges = detectarBordesSobel(imgData);
+    const e = edges.data;
+    const d = result.data;
+    for(let i=0;i<e.length;i+=4){
+      if(e[i] > 100){
+        const factor = 0.3;
+        d[i] *= (1-factor);
+        d[i+1] *= (1-factor);
+        d[i+2] *= (1-factor);
+      }
+    }
+    return result;
+  }
+
+  function aplicarComicBW(imgData, params){
+    // High contrast B&W comic style
+    const w = imgData.width, h = imgData.height;
+    const src = imgData.data;
+    const out = ctx.createImageData(w,h);
+    const dst = out.data;
+
+    // Convert to high-contrast grayscale
+    for(let i=0;i<src.length;i+=4){
+      const gray = (src[i]+src[i+1]+src[i+2])/3;
+      const threshold = 128;
+      const val = gray > threshold ? 255 : 0;
+      dst[i]=dst[i+1]=dst[i+2]=val;
+      dst[i+3]=255;
+    }
+
+    // Add strong edges
+    const edges = detectarBordesSobel(imgData);
+    const e = edges.data;
+    for(let i=0;i<e.length;i+=4){
+      if(e[i] > 80){
+        dst[i]=dst[i+1]=dst[i+2]=0;
+      }
+    }
+
+    return out;
+  }
+
+  function aplicarGlitch(imgData, params){
+    // RGB channel shift glitch effect
+    const w = imgData.width, h = imgData.height;
+    const src = imgData.data;
+    const out = ctx.createImageData(w,h);
+    const dst = out.data;
+
+    const shiftR = 5;
+    const shiftG = -3;
+    const shiftB = 0;
+
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        const idx = (y*w+x)*4;
+        
+        const xR = clamp(x+shiftR, 0, w-1);
+        const xG = clamp(x+shiftG, 0, w-1);
+        const xB = clamp(x+shiftB, 0, w-1);
+
+        dst[idx]   = src[(y*w+xR)*4];
+        dst[idx+1] = src[(y*w+xG)*4+1];
+        dst[idx+2] = src[(y*w+xB)*4+2];
+        dst[idx+3] = 255;
+      }
+    }
+
+    // Add random scanlines
+    for(let y=0;y<h;y+=3){
+      if(Math.random() > 0.7){
+        for(let x=0;x<w;x++){
+          const idx = (y*w+x)*4;
+          dst[idx] = clamp(dst[idx]*0.7, 0, 255);
+          dst[idx+1] = clamp(dst[idx+1]*0.7, 0, 255);
+          dst[idx+2] = clamp(dst[idx+2]*0.7, 0, 255);
+        }
+      }
+    }
+
+    return out;
+  }
+
+  function aplicarBlurBackground(imgData, params){
+    // Simple center-focused blur (simulates portrait mode)
+    // In production, this would use face detection
+    const w = imgData.width, h = imgData.height;
+    let blurred = imgData;
+    
+    if(webglAvailable){
+      blurred = applyWebGLFilter(imgData, 'blur', {u_blurAmount: 8.0});
+    }else{
+      blurred = simpleBlur(new ImageData(new Uint8ClampedArray(imgData.data), w, h), 8);
+    }
+
+    // Create radial mask (center sharp, edges blurred)
+    const src = imgData.data;
+    const blur = blurred.data;
+    const out = ctx.createImageData(w,h);
+    const dst = out.data;
+
+    const centerX = w/2;
+    const centerY = h/2;
+    const maxDist = Math.sqrt(centerX*centerX + centerY*centerY);
+
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const blurFactor = clamp(dist / maxDist, 0, 1);
+        
+        const idx = (y*w+x)*4;
+        dst[idx]   = src[idx]*(1-blurFactor) + blur[idx]*blurFactor;
+        dst[idx+1] = src[idx+1]*(1-blurFactor) + blur[idx+1]*blurFactor;
+        dst[idx+2] = src[idx+2]*(1-blurFactor) + blur[idx+2]*blurFactor;
+        dst[idx+3] = 255;
+      }
+    }
+
+    return out;
+  }
+
+  function simpleBlur(imgData, radius){
+    const w = imgData.width, h = imgData.height;
+    const src = imgData.data;
+    const out = ctx.createImageData(w,h);
+    const dst = out.data;
+
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        let r=0,g=0,b=0,count=0;
+        for(let yy=-radius;yy<=radius;yy++){
+          for(let xx=-radius;xx<=radius;xx++){
+            const ny = clamp(y+yy, 0, h-1);
+            const nx = clamp(x+xx, 0, w-1);
+            const idx = (ny*w+nx)*4;
+            r+=src[idx];
+            g+=src[idx+1];
+            b+=src[idx+2];
+            count++;
+          }
+        }
+        const o = (y*w+x)*4;
+        dst[o] = r/count;
+        dst[o+1] = g/count;
+        dst[o+2] = b/count;
+        dst[o+3] = 255;
+      }
+    }
+    return out;
+  }
+
+  // ========== Mask Painting ==========
+  function toggleMaskMode(){
+    maskMode = !maskMode;
+    canvasMask.classList.toggle('active', maskMode);
+    modeIndicator.classList.toggle('visible', maskMode);
+    maskControls.classList.toggle('visible', maskMode);
+    btnMaskMode.textContent = maskMode ? '❌ Desactivar pincel' : 'Activar modo pincel';
+    btnMaskMode.className = maskMode ? 'accent' : 'ghost';
+  }
+
+  function drawOnMask(x, y){
+    if(!maskMode || !maskData) return;
+    const size = parseInt(brushSize.value);
+    const erase = brushEraser.checked;
+    
+    ctxMask.globalCompositeOperation = erase ? 'destination-out' : 'source-over';
+    ctxMask.fillStyle = 'rgba(255,0,0,0.5)';
+    ctxMask.beginPath();
+    ctxMask.arc(x, y, size/2, 0, Math.PI*2);
+    ctxMask.fill();
+    
+    maskData = ctxMask.getImageData(0, 0, canvasMask.width, canvasMask.height);
+  }
+
+  canvasMask.addEventListener('mousedown', e => {
+    if(!maskMode) return;
+    painting = true;
+    const rect = canvasMask.getBoundingClientRect();
+    const scaleX = canvasMask.width / rect.width;
+    const scaleY = canvasMask.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    drawOnMask(x, y);
+  });
+
+  canvasMask.addEventListener('mousemove', e => {
+    if(!maskMode || !painting) return;
+    const rect = canvasMask.getBoundingClientRect();
+    const scaleX = canvasMask.width / rect.width;
+    const scaleY = canvasMask.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    drawOnMask(x, y);
+  });
+
+  canvasMask.addEventListener('mouseup', () => {
+    if(painting){
+      painting = false;
+      aplicarEfectoSeleccionadoDebounced();
+    }
+  });
+
+  canvasMask.addEventListener('mouseleave', () => {
+    painting = false;
+  });
+
+  // Touch support
+  canvasMask.addEventListener('touchstart', e => {
+    if(!maskMode) return;
+    e.preventDefault();
+    painting = true;
+    const rect = canvasMask.getBoundingClientRect();
+    const scaleX = canvasMask.width / rect.width;
+    const scaleY = canvasMask.height / rect.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+    drawOnMask(x, y);
+  });
+
+  canvasMask.addEventListener('touchmove', e => {
+    if(!maskMode || !painting) return;
+    e.preventDefault();
+    const rect = canvasMask.getBoundingClientRect();
+    const scaleX = canvasMask.width / rect.width;
+    const scaleY = canvasMask.height / rect.height;
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+    drawOnMask(x, y);
+  });
+
+  canvasMask.addEventListener('touchend', () => {
+    if(painting){
+      painting = false;
+      aplicarEfectoSeleccionadoDebounced();
+    }
+  });
+
+  btnClearMask.addEventListener('click', () => {
+    if(maskData){
+      ctxMask.clearRect(0, 0, canvasMask.width, canvasMask.height);
+      maskData = ctxMask.createImageData(canvasMask.width, canvasMask.height);
+      aplicarEfectoSeleccionadoDebounced();
+    }
+  });
+
+  brushSize.addEventListener('input', () => {
+    valBrushSize.textContent = brushSize.value + 'px';
+  });
+
+  // ========== Presets ==========
+  function savePreset(){
+    const name = presetName.value.trim();
+    if(!name) {
+      alert('Por favor, introduce un nombre para el preset');
+      return;
+    }
+
+    const preset = {
+      name,
+      efecto: selectEfecto.value,
+      umbral: umbralBordes.value,
+      glow: intensidadGlow.value,
+      nitidez: nitidez.value,
+      mezcla: mezcla.value,
+      color: colorPrincipal.value,
+      grosor: grosorLineas.value,
+      soloContornos: soloContornos.checked,
+      invertir: invertir.checked
+    };
+
+    let presets = JSON.parse(localStorage.getItem('artEffectsPresets') || '[]');
+    presets.push(preset);
+    localStorage.setItem('artEffectsPresets', JSON.stringify(presets));
+    
+    presetName.value = '';
+    loadPresets();
+  }
+
+  function loadPresets(){
+    const presets = JSON.parse(localStorage.getItem('artEffectsPresets') || '[]');
+    presetGrid.innerHTML = '';
+    
+    presets.forEach((preset, index) => {
+      const card = document.createElement('div');
+      card.className = 'preset-card';
+      card.innerHTML = `
+        <div class="name">${preset.name}</div>
+        <div class="effect">${preset.efecto}</div>
+        <div class="delete" data-index="${index}">🗑️ Borrar</div>
+      `;
+      
+      card.addEventListener('click', e => {
+        if(e.target.classList.contains('delete')){
+          deletePreset(index);
+        }else{
+          applyPreset(preset);
+        }
+      });
+      
+      presetGrid.appendChild(card);
+    });
+  }
+
+  function applyPreset(preset){
+    selectEfecto.value = preset.efecto;
+    umbralBordes.value = preset.umbral;
+    intensidadGlow.value = preset.glow;
+    nitidez.value = preset.nitidez;
+    mezcla.value = preset.mezcla;
+    colorPrincipal.value = preset.color;
+    grosorLineas.value = preset.grosor;
+    soloContornos.checked = preset.soloContornos;
+    invertir.checked = preset.invertir;
+    
+    actualizarEtiquetasSliders();
+    actualizarVisibilidadControles();
+    aplicarEfectoSeleccionadoDebounced();
+  }
+
+  function deletePreset(index){
+    let presets = JSON.parse(localStorage.getItem('artEffectsPresets') || '[]');
+    presets.splice(index, 1);
+    localStorage.setItem('artEffectsPresets', JSON.stringify(presets));
+    loadPresets();
+  }
+
+  // ========== UI Functions ==========
+  function restablecerAjustesPorEfecto(){
+    const efecto = selectEfecto.value;
+    const presets = {
+      neon: {umbral:90, glow:35, nitidez:30, mezcla:80, color:'#00f5ff', grosor:3, soloContornos:true, invertir:false},
+      cartoon: {umbral:70, glow:15, nitidez:25, mezcla:80, color:'#ff4500', grosor:4, soloContornos:false, invertir:false},
+      simpsons: {umbral:60, glow:10, nitidez:10, mezcla:85, color:'#ffd90a', grosor:5, soloContornos:false, invertir:false},
+      boceto: {umbral:70, glow:10, nitidez:40, mezcla:60, color:'#ffffff', grosor:3, soloContornos:true, invertir:true},
+      poster: {umbral:80, glow:15, nitidez:10, mezcla:75, color:'#ff00ff', grosor:3, soloContornos:false, invertir:false},
+      oleo: {umbral:60, glow:10, nitidez:5, mezcla:90, color:'#ffb347', grosor:2, soloContornos:false, invertir:false},
+      acuarela: {umbral:50, glow:20, nitidez:0, mezcla:85, color:'#87ceeb', grosor:2, soloContornos:false, invertir:false},
+      'comic-bw': {umbral:90, glow:10, nitidez:30, mezcla:70, color:'#000000', grosor:4, soloContornos:false, invertir:false},
+      glitch: {umbral:80, glow:25, nitidez:15, mezcla:90, color:'#ff00ff', grosor:3, soloContornos:false, invertir:false},
+      'blur-bg': {umbral:70, glow:15, nitidez:20, mezcla:100, color:'#ffffff', grosor:3, soloContornos:false, invertir:false}
+    };
+
+    const p = presets[efecto] || presets.neon;
+    umbralBordes.value = p.umbral;
+    intensidadGlow.value = p.glow;
+    nitidez.value = p.nitidez;
+    mezcla.value = p.mezcla;
+    colorPrincipal.value = p.color;
+    grosorLineas.value = p.grosor;
+    soloContornos.checked = p.soloContornos;
+    invertir.checked = p.invertir;
+
+    actualizarEtiquetasSliders();
+    actualizarVisibilidadControles();
+  }
+
+  function actualizarEtiquetasSliders(){
+    valUmbral.textContent = umbralBordes.value;
+    valGlow.textContent = intensidadGlow.value;
+    valNitidez.textContent = nitidez.value;
+    valMezcla.textContent = mezcla.value + '%';
+    valGrosor.textContent = grosorLineas.value + 'px';
+  }
+
+  function actualizarVisibilidadControles(){
+    const efecto = selectEfecto.value;
+    const showGlow = ['neon','cartoon','poster','glitch'].includes(efecto);
+    const showColor = ['neon','simpsons','poster'].includes(efecto);
+    const showGrosor = ['cartoon','simpsons','boceto','neon','comic-bw'].includes(efecto);
+    const showUmbral = ['neon','cartoon','simpsons','boceto','poster','comic-bw'].includes(efecto);
+
+    grupoGlow.style.display = showGlow ? 'block' : 'none';
+    grupoColor.style.display = showColor ? 'block' : 'none';
+    grupoGrosor.style.display = showGrosor ? 'block' : 'none';
+    grupoUmbral.style.display = showUmbral ? 'block' : 'none';
+  }
+
+  // ========== Event Listeners ==========
+  fileInput.addEventListener('change', e => cargarImagen(e.target.files[0]));
+
+  zonaDrop.addEventListener('dragover', e => {
+    e.preventDefault();
+    zonaDrop.classList.add('dragover');
+  });
+  zonaDrop.addEventListener('dragleave', () => zonaDrop.classList.remove('dragover'));
+  zonaDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    zonaDrop.classList.remove('dragover');
+    cargarImagen(e.dataTransfer.files[0]);
+  });
+
+  selectEfecto.addEventListener('change', () => {
+    restablecerAjustesPorEfecto();
+    aplicarEfectoSeleccionadoDebounced();
+  });
+
+  [umbralBordes,intensidadGlow,nitidez,mezcla,grosorLineas].forEach(input => {
+    input.addEventListener('input', ()=>{
+      actualizarEtiquetasSliders();
+      aplicarEfectoSeleccionadoDebounced();
+    });
+  });
+
+  [colorPrincipal,soloContornos,invertir,splitView].forEach(input => {
+    input.addEventListener('change', aplicarEfectoSeleccionadoDebounced);
+  });
+
+  btnAplicar.addEventListener('click', aplicarEfectoSeleccionado);
+  btnRestablecer.addEventListener('click', () => {
+    restablecerAjustesPorEfecto();
+    if(imagenOriginal){
+      ctx.putImageData(imagenOriginal,0,0);
+      aplicarEfectoSeleccionadoDebounced();
+    }
+  });
+
+  btnDescargar.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = `efecto-${selectEfecto.value}-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+
+  btnMaskMode.addEventListener('click', toggleMaskMode);
+  btnSavePreset.addEventListener('click', savePreset);
+
+  // ========== Initialization ==========
+  initWebGL();
+  restablecerAjustesPorEfecto();
+  actualizarVisibilidadControles();
+  actualizarEtiquetasSliders();
+  loadPresets();
+
+  console.log('%c✨ Editor de Efectos Artísticos Pro cargado', 'color:#00f5ff;font-size:16px;font-weight:bold');
+  console.log(`%cWebGL: ${webglAvailable ? '✅ Activo' : '⚠️ Fallback Canvas 2D'}`, 'color:#0f0');
+})();
+</script>
+
+</body>
+</html>
