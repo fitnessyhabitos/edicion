@@ -1,752 +1,926 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>Editor de Efectos Artísticos PRO - Estilo Clip2Comic</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<style>
-  :root{
-    --bg:#0a0a0a;
-    --panel:#141414;
-    --accent:#ff5c5c;
-    --accent-soft:#ffb347;
-    --accent-cyan:#00d4ff;
-    --text:#ffffff;
-    --muted:#888888;
-    --border:#2a2a2a;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
-  body{
-    background:radial-gradient(circle at top,#1a1a1a 0,#000 60%);
-    color:var(--text);
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:12px;
-  }
-  .app{
-    width:100%;
-    max-width:1400px;
-    background:var(--bg);
-    border-radius:20px;
-    box-shadow:0 0 60px rgba(255,92,92,0.15);
-    overflow:hidden;
-    border:1px solid var(--border);
-  }
-  header{
-    padding:16px 20px;
-    border-bottom:1px solid var(--border);
-    background:linear-gradient(135deg,#0f0f0f,#1a1a1a 40%,#222);
-  }
-  header h1{
-    font-size:1.2rem;
-    letter-spacing:0.04em;
-    background:linear-gradient(120deg,#ff5c5c,#ffb347,#00d4ff);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-  }
-  .badge{
-    font-size:0.65rem;
-    padding:3px 8px;
-    border-radius:12px;
-    background:#222;
-    color:var(--accent-cyan);
-    border:1px solid #333;
-    text-transform:uppercase;
-    margin-left:8px;
-  }
-  main{display:flex;flex-direction:column;}
-  .layout{display:flex;flex-direction:column;}
-  @media(min-width:980px){.layout{flex-direction:row;}}
-  .panel{padding:16px;}
-  .panel.controls{
-    background:var(--panel);
-    border-right:1px solid var(--border);
-    min-width:280px;
-    max-height:90vh;
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-  }
-  @media(min-width:980px){.panel.controls{width:360px;}}
-  .panel.preview{flex:1;background:#000;}
-  .section-title{
-    font-size:0.85rem;
-    text-transform:uppercase;
-    color:var(--muted);
-    letter-spacing:0.15em;
-    margin:16px 0 10px;
-    border-bottom:1px solid #222;
-    padding-bottom:6px;
-  }
-  .section-title:first-child{margin-top:0;}
-  .input-group{margin-bottom:12px;}
-  label{display:block;font-size:0.82rem;margin-bottom:5px;color:#ccc;}
-  .file-drop{
-    border:2px dashed var(--border);
-    border-radius:14px;
-    padding:18px;
-    text-align:center;
-    background:#0f0f0f;
-  }
-  .file-drop input[type="file"]{
-    opacity:1 !important;
-    width:100%;
-    padding:10px;
-    font-size:14px;
-    cursor:pointer;
-    background:#1a1a1a;
-    border:1px solid #333;
-    border-radius:8px;
-    color:#fff;
-  }
-  .file-drop p{font-size:0.75rem;color:var(--muted);margin-bottom:8px;}
-  select,input[type="text"]{
-    width:100%;
-    padding:8px 10px;
-    border-radius:10px;
-    border:1px solid var(--border);
-    background:#0a0a0a;
-    color:var(--text);
-    font-size:0.85rem;
-  }
-  .range-row{display:flex;align-items:center;gap:10px;}
-  .range-value{min-width:40px;text-align:right;font-size:0.8rem;color:var(--accent-soft);font-weight:600;}
-  input[type="range"]{
-    width:100%;
-    -webkit-appearance:none;
-    height:5px;
-    border-radius:999px;
-    background:linear-gradient(to right,#222,#444);
-  }
-  input[type="range"]::-webkit-slider-thumb{
-    -webkit-appearance:none;
-    width:18px;
-    height:18px;
-    border-radius:50%;
-    background:linear-gradient(135deg,var(--accent),var(--accent-soft));
-    cursor:pointer;
-    border:2px solid #000;
-  }
-  .toggles{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
-  .toggle{display:flex;align-items:center;gap:5px;font-size:0.76rem;color:#aaa;cursor:pointer;}
-  .buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
-  button{
-    border:none;
-    border-radius:999px;
-    padding:9px 16px;
-    font-size:0.8rem;
-    cursor:pointer;
-    background:#1a1a1a;
-    color:var(--text);
-    transition:all 0.2s;
-    -webkit-tap-highlight-color:transparent;
-  }
-  button.primary{
-    background:linear-gradient(120deg,#ff5c5c,#ffb347);
-    color:#000;
-    font-weight:600;
-    box-shadow:0 0 16px rgba(255,92,92,0.4);
-  }
-  button.accent{background:var(--accent-cyan);color:#000;font-weight:600;}
-  button:disabled{opacity:0.3;cursor:not-allowed;}
-  button:active{transform:scale(0.96);}
-  .canvas-wrapper{
-    position:relative;
-    width:100%;
-    min-height:400px;
-    background:#000;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  canvas{max-width:100%;max-height:85vh;background:#000;}
-  .placeholder{text-align:center;color:var(--muted);font-size:0.9rem;padding:40px 20px;}
-  .spinner{
-    position:absolute;
-    right:16px;
-    bottom:16px;
-    width:32px;
-    height:32px;
-    border-radius:50%;
-    border:4px solid rgba(255,255,255,0.1);
-    border-top-color:var(--accent-soft);
-    animation:spin 0.8s linear infinite;
-    display:none;
-  }
-  .spinner.visible{display:block;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .style-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:8px;
-    margin-top:8px;
-  }
-  .style-card{
-    background:#1a1a1a;
-    border:2px solid #333;
-    border-radius:10px;
-    padding:12px 8px;
-    cursor:pointer;
-    text-align:center;
-    transition:all 0.2s;
-  }
-  .style-card.active{
-    border-color:var(--accent);
-    background:#252525;
-  }
-  .style-card:active{transform:scale(0.95);}
-  .style-card .emoji{font-size:1.5rem;margin-bottom:4px;}
-  .style-card .name{font-size:0.75rem;color:#fff;}
-</style>
+  <meta charset="UTF-8" />
+  <title>Neon Edge Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root {
+      --bg: #111;
+      --panel: #181818;
+      --accent: #ff4500;
+      --accent-soft: #ff7a3c;
+      --text: #f5f5f5;
+      --muted: #888;
+      --danger: #ff4b6a;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #222 0, #111 45%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .app {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 4vw, 1.6rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-soft);
+      text-shadow: 0 0 8px rgba(255, 69, 0, 0.7);
+    }
+
+    header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: clamp(0.75rem, 3vw, 0.9rem);
+    }
+
+    .contenido {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 900px) {
+      .contenido {
+        flex-direction: row;
+      }
+    }
+
+    .panel {
+      background: rgba(20, 20, 20, 0.95);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow:
+        0 0 20px rgba(0, 0, 0, 0.8),
+        0 0 25px rgba(255, 69, 0, 0.1);
+      padding: 14px 16px 16px;
+    }
+
+    .panel-canvas {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 260px;
+    }
+
+    .panel-controles {
+      flex: 0 0 310px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .panel-canvas {
+        min-height: 280px;
+      }
+    }
+
+    h2 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #eee;
+    }
+
+    .subtitulo {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .input-archivo-wrapper {
+      border-radius: 10px;
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      background: linear-gradient(135deg, #181818, #111);
+      padding: 14px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+
+    .input-archivo-wrapper:hover,
+    .input-archivo-wrapper.dragover,
+    .input-archivo-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px rgba(255, 69, 0, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .input-archivo-wrapper input[type="file"] {
+      opacity: 0;
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+    }
+
+    .input-archivo-texto-principal {
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .input-archivo-texto-secundario {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .controles-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      color: #ddd;
+    }
+
+    .control label span.valor {
+      color: var(--accent-soft);
+      font-variant-numeric: tabular-nums;
+      font-size: 0.78rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #333, #222);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+      cursor: pointer;
+      border: 1px solid #fff;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+      cursor: pointer;
+      border: 1px solid #fff;
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #111;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .botones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    button {
+      flex: 1 1 auto;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px 12px;
+      background: radial-gradient(circle at top, #252525, #141414);
+      color: var(--text);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s, background 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button.primary {
+      border-color: rgba(255, 69, 0, 0.7);
+      background: radial-gradient(circle at top, #33140a, #140705);
+      box-shadow: 0 0 16px rgba(255, 69, 0, 0.5);
+    }
+
+    button.secondary {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    button.danger {
+      border-color: rgba(255, 75, 106, 0.8);
+      background: radial-gradient(circle at top, #33101a, #140509);
+    }
+
+    button:hover,
+    button:focus-visible {
+      box-shadow:
+        0 0 12px rgba(255, 69, 0, 0.6),
+        0 0 20px rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .fila-botones-extra {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .fila-botones-extra label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .fila-botones-extra input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+    }
+
+    .canvas-wrapper {
+      flex: 1;
+      background: #000;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:
+        0 0 25px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(255, 69, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @media (max-width: 600px) {
+      .canvas-wrapper {
+        height: 280px;
+      }
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      background: #000;
+      display: block;
+    }
+
+    .estado {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .estado span.fichero {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+    }
+
+    .spinner-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.88));
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .spinner-overlay.visible {
+      display: flex;
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 69, 0, 0.2);
+      border-top-color: var(--accent);
+      animation: girar 0.8s linear infinite;
+      box-shadow: 0 0 18px rgba(255, 69, 0, 0.9);
+    }
+
+    @keyframes girar {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <h1>✨ Editor Profesional de Efectos</h1>
-    <span class="badge">Algoritmos PRO</span>
-    <span class="badge">Estilo Clip2Comic</span>
-  </header>
+  <div class="app" aria-label="Editor efecto neon">
+    <header>
+      <h1>Neon Edge Studio</h1>
+      <p>Sube selfie o foto completa · Funciona perfecto en iPhone · Procesado 100% local</p>
+    </header>
 
-  <main>
-    <div class="layout">
-      <section class="panel controls">
-        
-        <div class="section-title">📸 Cargar Imagen</div>
-        <div class="input-group">
-          <div class="file-drop">
-            <p><strong>📁 Seleccionar foto</strong></p>
-            <input id="fileInput" type="file" accept="image/*" capture="environment" />
-          </div>
-        </div>
-
-        <div class="section-title">🎨 Estilos Artísticos</div>
-        <div class="style-grid" id="styleGrid"></div>
-
-        <div class="section-title">⚙️ Ajustes Avanzados</div>
-        
-        <div class="input-group">
-          <label for="smoothing">Suavizado (Bilateral Filter)</label>
-          <div class="range-row">
-            <input id="smoothing" type="range" min="0" max="100" value="50" />
-            <span class="range-value" id="valSmoothing">50</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label for="edgeStrength">Intensidad de bordes</label>
-          <div class="range-row">
-            <input id="edgeStrength" type="range" min="10" max="200" value="100" />
-            <span class="range-value" id="valEdge">100</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label for="colorLevels">Niveles de color</label>
-          <div class="range-row">
-            <input id="colorLevels" type="range" min="4" max="32" value="12" />
-            <span class="range-value" id="valColors">12</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label for="saturation">Saturación</label>
-          <div class="range-row">
-            <input id="saturation" type="range" min="50" max="200" value="120" />
-            <span class="range-value" id="valSat">120%</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label for="contrast">Contraste</label>
-          <div class="range-row">
-            <input id="contrast" type="range" min="50" max="200" value="110" />
-            <span class="range-value" id="valCon">110%</span>
-          </div>
-        </div>
-
-        <div class="toggles">
-          <label class="toggle">
-            <input id="useKMeans" type="checkbox" checked />
-            <span>K-Means Clustering</span>
-          </label>
-          <label class="toggle">
-            <input id="useBilateral" type="checkbox" checked />
-            <span>Filtro Bilateral</span>
-          </label>
-        </div>
-
-        <div class="buttons">
-          <button class="primary" id="btnAplicar">🎨 Aplicar Efecto</button>
-          <button class="accent" id="btnDescargar" disabled>⬇️ Descargar HD</button>
-        </div>
-        
-      </section>
-
-      <section class="panel preview">
+    <main class="contenido">
+      <section class="panel panel-canvas" aria-label="Vista previa">
+        <h2>Vista previa</h2>
+        <p class="subtitulo">Mezcla entre foto original y contorno neon brillante sobre fondo negro.</p>
         <div class="canvas-wrapper">
-          <canvas id="canvas"></canvas>
-          <div id="placeholder" class="placeholder">
-            🖼️ Carga una foto para comenzar<br>
-            <span style="font-size:0.75rem;color:#666;">Algoritmos profesionales de procesamiento de imagen</span>
+          <canvas id="canvas" aria-label="Lienzo de efecto neon"></canvas>
+
+          <div class="spinner-overlay" id="spinner">
+            <div class="spinner" aria-hidden="true"></div>
+            <div style="font-size:0.85rem;color:#eee;">Procesando efecto neon...</div>
           </div>
-          <div id="spinner" class="spinner"></div>
         </div>
       </section>
-    </div>
-  </main>
-</div>
 
-<script>
-(() => {
-  'use strict';
+      <section class="panel panel-controles" aria-label="Panel de control">
+        <div>
+          <h2>📱 Cargar foto</h2>
+          <p class="subtitulo">iPhone: cámara o fototeca · Se redimensiona automáticamente.</p>
+          <div class="input-archivo-wrapper" id="zona-soltar" aria-label="Zona de carga de imagen" tabindex="0">
+            <div class="input-archivo-texto-principal">Haz clic o arrastra</div>
+            <div class="input-archivo-texto-secundario">JPG, PNG, HEIC</div>
+            <input id="archivo" type="file" accept="image/*" aria-label="Seleccionar foto de galería o cámara" />
+          </div>
+        </div>
 
-  const STYLES = [
-    {id:'classic-comic', name:'Cómic Clásico', emoji:'📰', params:{smooth:60,edge:120,colors:8,sat:130,con:120}},
-    {id:'vibrant-pop', name:'Pop Art Vibrante', emoji:'🎨', params:{smooth:70,edge:140,colors:12,sat:150,con:130}},
-    {id:'manga', name:'Manga japonés', emoji:'📚', params:{smooth:40,edge:180,colors:6,sat:100,con:140}},
-    {id:'neon-glow', name:'Neón Intenso', emoji:'⚡', params:{smooth:50,edge:150,colors:16,sat:180,con:120}},
-    {id:'vintage-comic', name:'Cómic Vintage', emoji:'📖', params:{smooth:80,edge:100,colors:10,sat:90,con:110}},
-    {id:'modern-cartoon', name:'Cartoon Moderno', emoji:'🎭', params:{smooth:65,edge:130,colors:14,sat:140,con:115}},
-    {id:'sketch-art', name:'Arte Boceto', emoji:'✏️', params:{smooth:30,edge:200,colors:4,sat:80,con:150}},
-    {id:'watercolor', name:'Acuarela Digital', emoji:'💧', params:{smooth:90,edge:80,colors:20,sat:110,con:100}},
-  ];
+        <div>
+          <h2>Ajustes neon</h2>
+          <div class="controles-grid" aria-label="Controles del efecto">
+            <div class="control">
+              <label for="umbral">
+                Umbral bordes
+                <span class="valor" id="valor-umbral">75</span>
+              </label>
+              <input id="umbral" type="range" min="20" max="150" value="75" />
+            </div>
 
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d', {willReadFrequently:true});
-  const fileInput = document.getElementById('fileInput');
-  const placeholder = document.getElementById('placeholder');
-  const spinner = document.getElementById('spinner');
-  const styleGrid = document.getElementById('styleGrid');
-  const btnAplicar = document.getElementById('btnAplicar');
-  const btnDescargar = document.getElementById('btnDescargar');
+            <div class="control">
+              <label for="glow">
+                Brillo glow
+                <span class="valor" id="valor-glow">22</span>
+              </label>
+              <input id="glow" type="range" min="5" max="50" value="22" />
+            </div>
 
-  const smoothing = document.getElementById('smoothing');
-  const edgeStrength = document.getElementById('edgeStrength');
-  const colorLevels = document.getElementById('colorLevels');
-  const saturation = document.getElementById('saturation');
-  const contrast = document.getElementById('contrast');
-  const useKMeans = document.getElementById('useKMeans');
-  const useBilateral = document.getElementById('useBilateral');
+            <div class="control">
+              <label for="grosor">
+                Grosor línea
+                <span class="valor" id="valor-grosor">1.8</span>
+              </label>
+              <input id="grosor" type="range" min="1" max="5" step="0.5" value="1.8" />
+            </div>
 
-  const valSmoothing = document.getElementById('valSmoothing');
-  const valEdge = document.getElementById('valEdge');
-  const valColors = document.getElementById('valColors');
-  const valSat = document.getElementById('valSat');
-  const valCon = document.getElementById('valCon');
+            <div class="control">
+              <label for="nitidez">
+                Nitidez
+                <span class="valor" id="valor-nitidez">25</span>
+              </label>
+              <input id="nitidez" type="range" min="-50" max="100" value="25" />
+            </div>
 
-  let imagenOriginal = null;
-  let imagenBase = null;
-  let currentStyle = 'classic-comic';
-  let processingTimeout = null;
+            <div class="control">
+              <label for="mezcla">
+                Foto original
+                <span class="valor" id="valor-mezcla">30%</span>
+              </label>
+              <input id="mezcla" type="range" min="0" max="100" value="30" />
+            </div>
 
-  // ========== Render styles grid ==========
-  STYLES.forEach(style => {
-    const card = document.createElement('div');
-    card.className = 'style-card';
-    if(style.id === currentStyle) card.classList.add('active');
-    card.innerHTML = `<div class="emoji">${style.emoji}</div><div class="name">${style.name}</div>`;
-    card.onclick = () => {
-      document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      currentStyle = style.id;
-      applyStylePreset(style.params);
-    };
-    styleGrid.appendChild(card);
-  });
+            <div class="control">
+              <label for="color">
+                Color neon
+                <span class="valor" id="valor-color">#ff4500</span>
+              </label>
+              <input id="color" type="color" value="#ff4500" />
+            </div>
+          </div>
 
-  function applyStylePreset(params){
-    smoothing.value = params.smooth;
-    edgeStrength.value = params.edge;
-    colorLevels.value = params.colors;
-    saturation.value = params.sat;
-    contrast.value = params.con;
-    updateLabels();
-    if(imagenOriginal) aplicarEfectoDebounced();
-  }
+          <div class="fila-botones-extra">
+            <label for="invertir">
+              <input id="invertir" type="checkbox" />
+              Negativo
+            </label>
+            <label for="suavizar">
+              <input id="suavizar" type="checkbox" checked />
+              Menos ruido
+            </label>
+          </div>
+        </div>
 
-  function updateLabels(){
-    valSmoothing.textContent = smoothing.value;
-    valEdge.textContent = edgeStrength.value;
-    valColors.textContent = colorLevels.value;
-    valSat.textContent = saturation.value + '%';
-    valCon.textContent = contrast.value + '%';
-  }
+        <div>
+          <h2>⚡ Acciones</h2>
+          <div class="botones" aria-label="Botones de acciones">
+            <button id="btn-aplicar" class="primary" disabled>🔥 Aplicar neon</button>
+            <button id="btn-reset" class="secondary" disabled>↻ Reset</button>
+            <button id="btn-descargar" class="secondary" disabled>💾 Descargar PNG</button>
+          </div>
+          <div class="estado" aria-live="polite">
+            <span id="estado-texto">Toca para cargar foto</span>
+            <span class="fichero" id="estado-archivo"></span>
+          </div>
+        </div>
+      </section>
+    </main>
 
-  [smoothing,edgeStrength,colorLevels,saturation,contrast].forEach(input => {
-    input.addEventListener('input', () => {
-      updateLabels();
-      aplicarEfectoDebounced();
-    });
-  });
+    <footer>
+      Optimizado para iPhone · Próximos: presets, WebGL, más efectos · v2.1
+    </footer>
+  </div>
 
-  [useKMeans,useBilateral].forEach(input => {
-    input.addEventListener('change', aplicarEfectoDebounced);
-  });
+  <script>
+    // Optimizado para iOS Safari + mejoras de rendimiento
+    const inputArchivo = document.getElementById("archivo");
+    const zonaSoltar = document.getElementById("zona-soltar");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true, alpha: true });
 
-  function mostrarSpinner(show){
-    spinner.classList.toggle('visible', show);
-  }
+    const sliderUmbral = document.getElementById("umbral");
+    const sliderGlow = document.getElementById("glow");
+    const sliderGrosor = document.getElementById("grosor");
+    const sliderNitidez = document.getElementById("nitidez");
+    const sliderMezcla = document.getElementById("mezcla");
+    const inputColor = document.getElementById("color");
+    const chkInvertir = document.getElementById("invertir");
+    const chkSuavizar = document.getElementById("suavizar");
 
-  function clamp(v, min, max){
-    return v < min ? min : (v > max ? max : v);
-  }
+    const valorUmbral = document.getElementById("valor-umbral");
+    const valorGlow = document.getElementById("valor-glow");
+    const valorGrosor = document.getElementById("valor-grosor");
+    const valorNitidez = document.getElementById("valor-nitidez");
+    const valorMezcla = document.getElementById("valor-mezcla");
+    const valorColor = document.getElementById("valor-color");
 
-  // ========== Load Image ==========
-  fileInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if(!file) return;
+    const btnAplicar = document.getElementById("btn-aplicar");
+    const btnReset = document.getElementById("btn-reset");
+    const btnDescargar = document.getElementById("btn-descargar");
 
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        imagenBase = img;
-        const maxDim = 1500;
-        let w = img.width;
-        let h = img.height;
-        const ratio = Math.min(1, maxDim / Math.max(w,h));
-        w = Math.round(w * ratio);
-        h = Math.round(h * ratio);
-        
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(img, 0, 0, w, h);
-        imagenOriginal = ctx.getImageData(0,0,w,h);
-        placeholder.style.display = 'none';
-        btnDescargar.disabled = false;
-        aplicarEfectoDebounced();
+    const textoEstado = document.getElementById("estado-texto");
+    const textoArchivo = document.getElementById("estado-archivo");
+    const spinner = document.getElementById("spinner");
+
+    let imagenOriginal = null;
+    let anchoOriginal = 0;
+    let altoOriginal = 0;
+
+    const canvasOculto = document.createElement("canvas");
+    const ctxOculto = canvasOculto.getContext("2d", { willReadFrequently: true });
+    const canvasEdges = document.createElement("canvas");
+    const ctxEdges = canvasEdges.getContext("2d", { willReadFrequently: true });
+
+    let timeoutProcesar = null;
+    let esMovil = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+    function mostrarSpinner(mostrar) {
+      spinner.classList.toggle("visible", mostrar);
+    }
+
+    function actualizarEtiquetas() {
+      valorUmbral.textContent = sliderUmbral.value;
+      valorGlow.textContent = sliderGlow.value;
+      valorGrosor.textContent = sliderGrosor.value;
+      valorNitidez.textContent = sliderNitidez.value;
+      valorMezcla.textContent = sliderMezcla.value + "%";
+      valorColor.textContent = inputColor.value;
+    }
+
+    function limitarResolucion(ancho, alto, max = esMovil ? 1400 : 2000) {
+      if (ancho <= max && alto <= max) return { ancho, alto };
+      const ratio = ancho / alto;
+      if (ratio >= 1) {
+        return { ancho: max, alto: Math.round(max / ratio) };
+      } else {
+        return { ancho: Math.round(max * ratio), alto: max };
+      }
+    }
+
+    function clonarDatosImagen(imageData) {
+      return new ImageData(
+        new Uint8ClampedArray(imageData.data),
+        imageData.width,
+        imageData.height
+      );
+    }
+
+    function cargarImagen(archivo) {
+      if (!archivo || !archivo.type.startsWith("image/")) {
+        textoEstado.textContent = "Selecciona una imagen válida.";
+        return;
+      }
+      const lector = new FileReader();
+      lector.onload = function (e) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function () {
+          const dims = limitarResolucion(img.naturalWidth, img.naturalHeight);
+          anchoOriginal = dims.ancho;
+          altoOriginal = dims.alto;
+
+          canvas.width = anchoOriginal;
+          canvas.height = altoOriginal;
+
+          canvasOculto.width = anchoOriginal;
+          canvasOculto.height = altoOriginal;
+          canvasEdges.width = anchoOriginal;
+          canvasEdges.height = altoOriginal;
+
+          ctxOculto.imageSmoothingEnabled = true;
+          ctxOculto.clearRect(0, 0, anchoOriginal, altoOriginal);
+          ctxOculto.drawImage(img, 0, 0, anchoOriginal, altoOriginal);
+
+          imagenOriginal = img;
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, anchoOriginal, altoOriginal);
+
+          textoEstado.textContent = "Foto cargada ✓ Ajusta y aplica el efecto neon.";
+          textoArchivo.textContent = archivo.name;
+
+          btnAplicar.disabled = false;
+          btnReset.disabled = false;
+          btnDescargar.disabled = false;
+
+          procesarConDebounce();
+        };
+        img.src = e.target.result;
       };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+      lector.readAsDataURL(archivo);
+    }
 
-  function aplicarEfectoDebounced(){
-    if(!imagenOriginal) return;
-    clearTimeout(processingTimeout);
-    processingTimeout = setTimeout(aplicarEfecto, 150);
-  }
+    function aplicarEfectoNeon() {
+      if (!imagenOriginal) return;
+      mostrarSpinner(true);
 
-  // ========== ADVANCED IMAGE PROCESSING ==========
-  
-  function aplicarEfecto(){
-    if(!imagenOriginal) return;
-    mostrarSpinner(true);
+      requestAnimationFrame(() => {
+        const baseData = ctxOculto.getImageData(0, 0, anchoOriginal, altoOriginal);
 
-    setTimeout(() => {
+        let procesada = baseData;
+        if (chkSuavizar.checked) {
+          procesada = aplicarSuavizadoGaussiano(procesada, esMovil ? 1 : 1);
+        }
+
+        const grisData = convertirAGris(procesada);
+
+        const nitidezFactor = parseInt(sliderNitidez.value, 10);
+        let afterNitidez = grisData;
+        if (nitidezFactor !== 0) {
+          afterNitidez = ajustarNitidez(grisData, nitidezFactor);
+        }
+
+        const umbral = parseInt(sliderUmbral.value, 10);
+        const edgesData = detectarBordesSobel(afterNitidez, umbral);
+
+        dibujarGlow(edgesData);
+
+        mezclarOriginalEfecto();
+
+        mostrarSpinner(false);
+      });
+    }
+
+    function procesarConDebounce() {
+      if (!imagenOriginal) return;
+      clearTimeout(timeoutProcesar);
+      timeoutProcesar = setTimeout(aplicarEfectoNeon, esMovil ? 250 : 180);
+    }
+
+    function convertirAGris(imageData) {
+      const data = imageData.data;
+      const out = clonarDatosImagen(imageData);
+      const o = out.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const gris = 0.299 * r + 0.587 * g + 0.114 * b;
+        o[i] = o[i + 1] = o[i + 2] = gris;
+        o[i + 3] = 255;
+      }
+      return out;
+    }
+
+    function aplicarSuavizadoGaussiano(imageData, repeticiones = 1) {
+      const kernel = [1, 2, 1, 2, 4, 2, 1, 2, 1];
+      const factor = 16;
+      let resultado = imageData;
+      for (let r = 0; r < repeticiones; r++) {
+        resultado = aplicarConvolucionGris(resultado, kernel, factor, 0);
+      }
+      return resultado;
+    }
+
+    function aplicarConvolucionGris(imageData, kernel, factor, offset) {
+      const { width, height, data } = imageData;
+      const out = new ImageData(width, height);
+      const dst = out.data;
+      const k = kernel;
+      for (let y = 1; y < height - 1; y++) {
+        for (let x = 1; x < width - 1; x++) {
+          let sum = 0;
+          let idx = (y * width + x) * 4;
+          const posiciones = [
+            idx - 4 - width * 4, idx - width * 4, idx + 4 - width * 4,
+            idx - 4, idx, idx + 4,
+            idx - 4 + width * 4, idx + width * 4, idx + 4 + width * 4
+          ];
+          for (let i = 0; i < 9; i++) {
+            const di = posiciones[i];
+            sum += data[di] * k[i];
+          }
+          let g = sum / factor + offset;
+          g = g < 0 ? 0 : g > 255 ? 255 : g;
+          dst[idx] = dst[idx + 1] = dst[idx + 2] = g;
+          dst[idx + 3] = 255;
+        }
+      }
+      return out;
+    }
+
+    function ajustarNitidez(imageData, factorNitidez) {
+      const blurred = aplicarSuavizadoGaussiano(imageData, 1);
+      const { width, height, data } = imageData;
+      const sharp = clonarDatosImagen(imageData);
+      const sd = sharp.data;
+      const bd = blurred.data;
+      let amount = factorNitidez >= 0 ? factorNitidez / 65 : factorNitidez / 70;
+      for (let i = 0; i < data.length; i += 4) {
+        const orig = data[i];
+        const blur = bd[i];
+        let val = orig + amount * (orig - blur);
+        val = val < 0 ? 0 : val > 255 ? 255 : val;
+        sd[i] = sd[i + 1] = sd[i + 2] = val;
+        sd[i + 3] = 255;
+      }
+      return sharp;
+    }
+
+    function detectarBordesSobel(imageData, umbral) {
+      const { width, height, data } = imageData;
+      const Gx = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+      const Gy = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+      const out = new ImageData(width, height);
+      const dst = out.data;
+      for (let y = 1; y < height - 1; y++) {
+        for (let x = 1; x < width - 1; x++) {
+          let idx = (y * width + x) * 4;
+          const posiciones = [
+            idx - 4 - width * 4, idx - width * 4, idx + 4 - width * 4,
+            idx - 4, idx, idx + 4,
+            idx - 4 + width * 4, idx + width * 4, idx + 4 + width * 4
+          ];
+          let sumX = 0;
+          let sumY = 0;
+          for (let i = 0; i < 9; i++) {
+            const p = data[posiciones[i]];
+            sumX += p * Gx[i];
+            sumY += p * Gy[i];
+          }
+          const mag = Math.sqrt(sumX * sumX + sumY * sumY);
+          const v = mag > umbral ? 255 : 0;
+          dst[idx] = dst[idx + 1] = dst[idx + 2] = v;
+          dst[idx + 3] = v;
+        }
+      }
+      return out;
+    }
+
+    function dibujarGlow(edgesData) {
+      const { width, height, data } = edgesData;
+      canvasEdges.width = width;
+      canvasEdges.height = height;
+
+      ctxEdges.globalCompositeOperation = "source-over";
+      ctxEdges.clearRect(0, 0, width, height);
+      ctxEdges.fillStyle = "#000";
+      ctxEdges.fillRect(0, 0, width, height);
+
+      const color = inputColor.value;
+      const grosor = parseFloat(sliderGrosor.value);
+
+      ctxEdges.lineCap = "round";
+      ctxEdges.lineJoin = "round";
+      ctxEdges.globalCompositeOperation = "lighter";
+
+      const pasosGlow = esMovil ? 2 : 3;
+      const blurBase = parseInt(sliderGlow.value, 10);
+
+      for (let pass = pasosGlow; pass >= 1; pass--) {
+        ctxEdges.save();
+        ctxEdges.lineWidth = grosor + pass * 0.9;
+        ctxEdges.strokeStyle = color;
+        ctxEdges.shadowColor = color;
+        ctxEdges.shadowBlur = (blurBase * pass) / 2;
+        ctxEdges.beginPath();
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            const v = data[idx];
+            if (v > 0) {
+              ctxEdges.moveTo(x, y);
+              ctxEdges.lineTo(x + 0.1, y + 0.1);
+            }
+          }
+        }
+        ctxEdges.stroke();
+        ctxEdges.restore();
+      }
+
+      if (chkInvertir.checked) {
+        const tmp = ctxEdges.getImageData(0, 0, width, height);
+        const td = tmp.data;
+        for (let i = 0; i < td.length; i += 4) {
+          td[i] = 255 - td[i];
+          td[i + 1] = 255 - td[i + 1];
+          td[i + 2] = 255 - td[i + 2];
+        }
+        ctxEdges.putImageData(tmp, 0, 0);
+      }
+    }
+
+    function mezclarOriginalEfecto() {
+      if (!imagenOriginal) return;
+      const mezcla = parseInt(sliderMezcla.value, 10) / 100;
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (mezcla > 0) {
+        ctx.globalAlpha = mezcla;
+        ctx.globalCompositeOperation = "source-over";
+        ctx.drawImage(imagenOriginal, 0, 0, anchoOriginal, altoOriginal);
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(canvasEdges, 0, 0);
+
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+    }
+
+    // Eventos optimizados
+    function manejarArchivoSeleccionado(e) {
+      const archivo = e.target.files[0];
+      if (!archivo) return;
+      cargarImagen(archivo);
+    }
+
+    inputArchivo.addEventListener("change", manejarArchivoSeleccionado);
+
+    zonaSoltar.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      zonaSoltar.classList.add("dragover");
+    });
+
+    zonaSoltar.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      zonaSoltar.classList.remove("dragover");
+    });
+
+    zonaSoltar.addEventListener("drop", (e) => {
+      e.preventDefault();
+      zonaSoltar.classList.remove("dragover");
+      const archivo = e.dataTransfer.files[0];
+      if (archivo) {
+        inputArchivo.files = e.dataTransfer.files;
+        cargarImagen(archivo);
+      }
+    });
+
+    zonaSoltar.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        inputArchivo.click();
+      }
+    });
+
+    [
+      sliderUmbral, sliderGlow, sliderGrosor, sliderNitidez, sliderMezcla, inputColor, chkInvertir, chkSuavizar
+    ].forEach((el) => {
+      el.addEventListener("input", () => {
+        actualizarEtiquetas();
+        procesarConDebounce();
+      });
+    });
+
+    btnAplicar.addEventListener("click", aplicarEfectoNeon);
+
+    btnReset.addEventListener("click", () => {
+      if (!imagenOriginal) return;
+      sliderUmbral.value = 75;
+      sliderGlow.value = 22;
+      sliderGrosor.value = 1.8;
+      sliderNitidez.value = 25;
+      sliderMezcla.value = 30;
+      inputColor.value = "#ff4500";
+      chkInvertir.checked = false;
+      chkSuavizar.checked = true;
+      actualizarEtiquetas();
+      procesarConDebounce();
+    });
+
+    btnDescargar.addEventListener("click", () => {
+      if (!imagenOriginal) return;
       try {
-        const w = imagenOriginal.width;
-        const h = imagenOriginal.height;
-        let imgData = new ImageData(new Uint8ClampedArray(imagenOriginal.data), w, h);
-
-        // Step 1: Median filter to reduce noise
-        imgData = medianFilter(imgData);
-
-        // Step 2: Bilateral filter (edge-preserving smoothing)
-        if(useBilateral.checked){
-          const smoothVal = parseInt(smoothing.value) / 100;
-          imgData = bilateralFilter(imgData, smoothVal);
-        }
-
-        // Step 3: Adjust saturation and contrast
-        imgData = adjustSaturationContrast(imgData, 
-          parseInt(saturation.value) / 100, 
-          parseInt(contrast.value) / 100
-        );
-
-        // Step 4: Color quantization (K-means clustering)
-        if(useKMeans.checked){
-          const numColors = parseInt(colorLevels.value);
-          imgData = kMeansQuantization(imgData, numColors);
-        }
-
-        // Step 5: Edge detection and enhancement
-        const edges = sobelEdgeDetection(imgData, parseInt(edgeStrength.value));
-        
-        // Step 6: Combine edges with color image
-        imgData = combineEdgesWithColor(imgData, edges);
-
-        ctx.putImageData(imgData, 0, 0);
-        mostrarSpinner(false);
-      } catch(e) {
-        console.error(e);
-        mostrarSpinner(false);
+        canvas.toBlob((blob) => {
+          const enlace = document.createElement("a");
+          enlace.href = URL.createObjectURL(blob);
+          enlace.download = `neon-edge-${Date.now()}.png`;
+          enlace.click();
+          URL.revokeObjectURL(enlace.href);
+        }, "image/png", 0.95);
+      } catch (e) {
+        // Fallback para iOS Safari
+        const enlace = document.createElement("a");
+        enlace.download = "neon-edge.png";
+        enlace.href = canvas.toDataURL("image/png", 0.95);
+        enlace.click();
       }
-    }, 50);
-  }
+    });
 
-  // ========== Median Filter (noise reduction) ==========
-  function medianFilter(imgData){
-    const w = imgData.width, h = imgData.height;
-    const src = imgData.data;
-    const out = new Uint8ClampedArray(src.length);
-    
-    for(let y=1; y<h-1; y++){
-      for(let x=1; x<w-1; x++){
-        const rVals = [], gVals = [], bVals = [];
-        
-        for(let ky=-1; ky<=1; ky++){
-          for(let kx=-1; kx<=1; kx++){
-            const idx = ((y+ky)*w + (x+kx)) * 4;
-            rVals.push(src[idx]);
-            gVals.push(src[idx+1]);
-            bVals.push(src[idx+2]);
-          }
-        }
-        
-        rVals.sort((a,b) => a-b);
-        gVals.sort((a,b) => a-b);
-        bVals.sort((a,b) => a-b);
-        
-        const idx = (y*w + x) * 4;
-        out[idx] = rVals[4];
-        out[idx+1] = gVals[4];
-        out[idx+2] = bVals[4];
-        out[idx+3] = 255;
-      }
-    }
-    
-    // Copy edges
-    for(let i=0; i<src.length; i++) if(out[i]===0) out[i] = src[i];
-    
-    return new ImageData(out, w, h);
-  }
-
-  // ========== Bilateral Filter (edge-preserving smoothing) ==========
-  function bilateralFilter(imgData, strength){
-    const w = imgData.width, h = imgData.height;
-    const src = imgData.data;
-    const out = new Uint8ClampedArray(src.length);
-    
-    const radius = Math.round(3 * strength) || 1;
-    const sigmaSpace = radius;
-    const sigmaColor = 50 * strength;
-    
-    for(let y=0; y<h; y++){
-      for(let x=0; x<w; x++){
-        const idx = (y*w + x) * 4;
-        const centerR = src[idx];
-        const centerG = src[idx+1];
-        const centerB = src[idx+2];
-        
-        let sumR=0, sumG=0, sumB=0, sumWeight=0;
-        
-        for(let ky=-radius; ky<=radius; ky++){
-          for(let kx=-radius; kx<=radius; kx++){
-            const ny = clamp(y+ky, 0, h-1);
-            const nx = clamp(x+kx, 0, w-1);
-            const nidx = (ny*w + nx) * 4;
-            
-            const nr = src[nidx];
-            const ng = src[nidx+1];
-            const nb = src[nidx+2];
-            
-            // Spatial weight
-            const spatialDist = Math.sqrt(kx*kx + ky*ky);
-            const spatialWeight = Math.exp(-(spatialDist*spatialDist) / (2*sigmaSpace*sigmaSpace));
-            
-            // Color weight
-            const colorDist = Math.sqrt(
-              (nr-centerR)*(nr-centerR) + 
-              (ng-centerG)*(ng-centerG) + 
-              (nb-centerB)*(nb-centerB)
-            );
-            const colorWeight = Math.exp(-(colorDist*colorDist) / (2*sigmaColor*sigmaColor));
-            
-            const weight = spatialWeight * colorWeight;
-            
-            sumR += nr * weight;
-            sumG += ng * weight;
-            sumB += nb * weight;
-            sumWeight += weight;
-          }
-        }
-        
-        out[idx] = sumR / sumWeight;
-        out[idx+1] = sumG / sumWeight;
-        out[idx+2] = sumB / sumWeight;
-        out[idx+3] = 255;
-      }
-    }
-    
-    return new ImageData(out, w, h);
-  }
-
-  // ========== Saturation & Contrast ==========
-  function adjustSaturationContrast(imgData, satFactor, conFactor){
-    const d = imgData.data;
-    
-    for(let i=0; i<d.length; i+=4){
-      let r = d[i], g = d[i+1], b = d[i+2];
-      
-      // Saturation
-      const gray = 0.299*r + 0.587*g + 0.114*b;
-      r = gray + (r - gray) * satFactor;
-      g = gray + (g - gray) * satFactor;
-      b = gray + (b - gray) * satFactor;
-      
-      // Contrast
-      r = ((r/255 - 0.5) * conFactor + 0.5) * 255;
-      g = ((g/255 - 0.5) * conFactor + 0.5) * 255;
-      b = ((b/255 - 0.5) * conFactor + 0.5) * 255;
-      
-      d[i] = clamp(r, 0, 255);
-      d[i+1] = clamp(g, 0, 255);
-      d[i+2] = clamp(b, 0, 255);
-    }
-    
-    return imgData;
-  }
-
-  // ========== K-Means Color Quantization ==========
-  function kMeansQuantization(imgData, k){
-    const w = imgData.width, h = imgData.height;
-    const d = imgData.data;
-    const pixels = [];
-    
-    // Sample pixels (use every 4th pixel for speed)
-    for(let i=0; i<d.length; i+=16){
-      pixels.push([d[i], d[i+1], d[i+2]]);
-    }
-    
-    // Initialize centroids randomly
-    const centroids = [];
-    const used = new Set();
-    while(centroids.length < k){
-      const idx = Math.floor(Math.random() * pixels.length);
-      const key = pixels[idx].join(',');
-      if(!used.has(key)){
-        centroids.push([...pixels[idx]]);
-        used.add(key);
-      }
-    }
-    
-    // K-means iterations
-    for(let iter=0; iter<5; iter++){
-      const clusters = Array(k).fill(null).map(() => []);
-      
-      // Assign pixels to nearest centroid
-      for(const pixel of pixels){
-        let minDist = Infinity;
-        let bestCluster = 0;
-        
-        for(let j=0; j<k; j++){
-          const dist = Math.sqrt(
-            (pixel[0]-centroids[j][0])**2 +
-            (pixel[1]-centroids[j][1])**2 +
-            (pixel[2]-centroids[j][2])**2
-          );
-          if(dist < minDist){
-            minDist = dist;
-            bestCluster = j;
-          }
-        }
-        
-        clusters[bestCluster].push(pixel);
-      }
-      
-      // Update centroids
-      for(let j=0; j<k; j++){
-        if(clusters[j].length === 0) continue;
-        
-        const sumR = clusters[j].reduce((s,p) => s+p[0], 0);
-        const sumG = clusters[j].reduce((s,p) => s+p[1], 0);
-        const sumB = clusters[j].reduce((s,p) => s+p[2], 0);
-        const len = clusters[j].length;
-        
-        centroids[j] = [sumR/len, sumG/len, sumB/len];
-      }
-    }
-    
-    // Map all pixels to nearest centroid
-    for(let i=0; i<d.length; i+=4){
-      const pixel = [d[i], d[i+1], d[i+2]];
-      let minDist = Infinity;
-      let bestColor = centroids[0];
-      
-      for(const centroid of centroids){
-        const dist = Math.sqrt(
-          (pixel[0]-centroid[0])**2 +
-          (pixel[1]-centroid[1])**2 +
-          (pixel[2]-centroid[2])**2
-        );
-        if(dist < minDist){
-          minDist = dist;
-          bestColor = centroid;
-        }
-      }
-      
-      d[i] = bestColor[0];
-      d[i+1] = bestColor[1];
-      d[i+2] = bestColor[2];
-    }
-    
-    return imgData;
-  }
-
-  // ========== Sobel Edge Detection ==========
-  function sobelEdgeDetection(imgData, threshold){
-    const w = imgData.width, h = imgData.height;
-    const src = imgData.data;
-    const edges = new Uint8ClampedArray(w*h);
-    
-    for(let y=1; y<h-1; y++){
-      for(let x=1; x<w-1; x++){
-        let gx = 0, gy = 0;
-        
-        for(let ky=-1; ky<=1; ky++){
-          for(let kx=-1; kx<=1; kx++){
-            const idx = ((y+ky)*w + (x+kx)) * 4;
-            const gray = 0.299*src[idx] + 0.587*src[idx+1] + 0.114*src[idx+2];
-            
-            const sobelX = kx;
-            const sobelY = ky;
-            
-            gx += gray * sobelX;
-            gy += gray * sobelY;
-          }
-        }
-        
-        const magnitude = Math.sqrt(gx*gx + gy*gy);
-        edges[y*w + x] = magnitude > threshold ? 255 : 0;
-      }
-    }
-    
-    return edges;
-  }
-
-  // ========== Combine Edges with Color ==========
-  function combineEdgesWithColor(imgData, edges){
-    const d = imgData.data;
-    
-    for(let i=0; i<edges.length; i++){
-      if(edges[i] > 128){
-        const idx = i * 4;
-        d[idx] = 0;
-        d[idx+1] = 0;
-        d[idx+2] = 0;
-        d[idx+3] = 255;
-      }
-    }
-    
-    return imgData;
-  }
-
-  // ========== Download ==========
-  btnDescargar.addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = `comic-effect-${currentStyle}-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
-
-  btnAplicar.addEventListener('click', aplicarEfecto);
-
-  // Init
-  updateLabels();
-  applyStylePreset(STYLES[0].params);
-})();
-</script>
+    actualizarEtiquetas();
+  </script>
 </body>
 </html>
