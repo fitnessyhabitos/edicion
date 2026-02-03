@@ -1,926 +1,579 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Neon Edge Studio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <style>
-    :root {
-      --bg: #111;
-      --panel: #181818;
-      --accent: #ff4500;
-      --accent-soft: #ff7a3c;
-      --text: #f5f5f5;
-      --muted: #888;
-      --danger: #ff4b6a;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #222 0, #111 45%, #000 100%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-top: env(safe-area-inset-top);
-    }
-
-    .app {
-      max-width: 1100px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 12px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 2px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: clamp(1.3rem, 4vw, 1.6rem);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--accent-soft);
-      text-shadow: 0 0 8px rgba(255, 69, 0, 0.7);
-    }
-
-    header p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: clamp(0.75rem, 3vw, 0.9rem);
-    }
-
-    .contenido {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    @media (min-width: 900px) {
-      .contenido {
-        flex-direction: row;
-      }
-    }
-
-    .panel {
-      background: rgba(20, 20, 20, 0.95);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow:
-        0 0 20px rgba(0, 0, 0, 0.8),
-        0 0 25px rgba(255, 69, 0, 0.1);
-      padding: 14px 16px 16px;
-    }
-
-    .panel-canvas {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 260px;
-    }
-
-    .panel-controles {
-      flex: 0 0 310px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    @media (max-width: 600px) {
-      .panel-canvas {
-        min-height: 280px;
-      }
-    }
-
-    h2 {
-      margin: 0 0 4px;
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #eee;
-    }
-
-    .subtitulo {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .input-archivo-wrapper {
-      border-radius: 10px;
-      border: 1px dashed rgba(255, 255, 255, 0.25);
-      background: linear-gradient(135deg, #181818, #111);
-      padding: 14px;
-      text-align: center;
-      position: relative;
-      cursor: pointer;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-    }
-
-    .input-archivo-wrapper:hover,
-    .input-archivo-wrapper.dragover,
-    .input-archivo-wrapper:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 18px rgba(255, 69, 0, 0.5);
-      transform: translateY(-1px);
-    }
-
-    .input-archivo-wrapper input[type="file"] {
-      opacity: 0;
-      position: absolute;
-      inset: 0;
-      cursor: pointer;
-    }
-
-    .input-archivo-texto-principal {
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-    }
-
-    .input-archivo-texto-secundario {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    .controles-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .control {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 0.8rem;
-    }
-
-    .control label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      color: #ddd;
-    }
-
-    .control label span.valor {
-      color: var(--accent-soft);
-      font-variant-numeric: tabular-nums;
-      font-size: 0.78rem;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 4px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #333, #222);
-      outline: none;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
-      cursor: pointer;
-      border: 1px solid #fff;
-    }
-
-    input[type="range"]::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
-      cursor: pointer;
-      border: 1px solid #fff;
-    }
-
-    input[type="color"] {
-      width: 100%;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: #111;
-      padding: 0;
-      cursor: pointer;
-    }
-
-    .botones {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    button {
-      flex: 1 1 auto;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 8px 12px;
-      background: radial-gradient(circle at top, #252525, #141414);
-      color: var(--text);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s, background 0.2s;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
-    }
-
-    button.primary {
-      border-color: rgba(255, 69, 0, 0.7);
-      background: radial-gradient(circle at top, #33140a, #140705);
-      box-shadow: 0 0 16px rgba(255, 69, 0, 0.5);
-    }
-
-    button.secondary {
-      border-color: rgba(255, 255, 255, 0.18);
-    }
-
-    button.danger {
-      border-color: rgba(255, 75, 106, 0.8);
-      background: radial-gradient(circle at top, #33101a, #140509);
-    }
-
-    button:hover,
-    button:focus-visible {
-      box-shadow:
-        0 0 12px rgba(255, 69, 0, 0.6),
-        0 0 20px rgba(255, 255, 255, 0.08);
-      transform: translateY(-1px);
-    }
-
-    button:disabled {
-      opacity: 0.4;
-      cursor: default;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .fila-botones-extra {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-top: 2px;
-    }
-
-    .fila-botones-extra label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-      color: var(--muted);
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .fila-botones-extra input[type="checkbox"] {
-      accent-color: var(--accent);
-      width: 16px;
-      height: 16px;
-    }
-
-    .canvas-wrapper {
-      flex: 1;
-      background: #000;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow:
-        0 0 25px rgba(0, 0, 0, 0.9),
-        0 0 40px rgba(255, 69, 0, 0.4);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    @media (max-width: 600px) {
-      .canvas-wrapper {
-        height: 280px;
-      }
-    }
-
-    canvas {
-      max-width: 100%;
-      max-height: 100%;
-      background: #000;
-      display: block;
-    }
-
-    .estado {
-      font-size: 0.8rem;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .estado span.fichero {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 60%;
-    }
-
-    .spinner-overlay {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.88));
-      display: none;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 10;
-    }
-
-    .spinner-overlay.visible {
-      display: flex;
-    }
-
-    .spinner {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 3px solid rgba(255, 69, 0, 0.2);
-      border-top-color: var(--accent);
-      animation: girar 0.8s linear infinite;
-      box-shadow: 0 0 18px rgba(255, 69, 0, 0.9);
-    }
-
-    @keyframes girar {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    footer {
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Cyberpunk Liquid Glass Editor</title>
+<style>
+  :root{
+    --bg:#05060a; --card:rgba(255,255,255,0.04); --glass:rgba(255,255,255,0.06);
+    --accent:#ff2d95; --accent-2:#ff4b3e; --muted:#9aa4b2; --radius:14px;
+    --glass-blur:12px;
+  }
+  html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue";background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(255,45,149,0.03), transparent 8%),
+    radial-gradient(900px 400px at 90% 90%, rgba(255,75,62,0.02), transparent 8%),
+    var(--bg); color:#e6eef6; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px;margin:14px auto;padding:12px;display:grid;grid-template-columns:1fr;gap:12px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  h1{font-size:18px;margin:0;color:#fff;letter-spacing:0.6px}
+  .sub{font-size:12px;color:var(--muted)}
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--radius); padding:12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button,select,input[type="range"],input[type="color"]{
+    background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--accent);padding:8px 10px;border-radius:10px;
+    font-size:13px;
+  }
+  .main{display:grid;grid-template-columns:1fr 360px;gap:12px}
+  canvas{width:100%;height:auto;border-radius:12px;background:#000;display:block}
+  .controls{display:flex;flex-direction:column;gap:10px;padding:8px}
+  label{font-size:13px;color:var(--muted)}
+  .row{display:flex;gap:8px;align-items:center}
+  .presets{display:flex;gap:8px;flex-wrap:wrap}
+  .preset{padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+  .palette{display:flex;gap:6px;flex-wrap:wrap}
+  .swatch{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);cursor:pointer}
+  footer{font-size:12px;color:var(--muted);text-align:center;padding:6px}
+  @media (max-width:920px){ .main{grid-template-columns:1fr} .controls{order:2} }
+  /* cyber accents */
+  .accent{color:var(--accent); font-weight:600}
+  .glass-title{display:flex;gap:8px;align-items:center}
+  .logo-dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 6px 18px rgba(255,45,149,0.18)}
+</style>
 </head>
 <body>
-  <div class="app" aria-label="Editor efecto neon">
-    <header>
-      <h1>Neon Edge Studio</h1>
-      <p>Sube selfie o foto completa · Funciona perfecto en iPhone · Procesado 100% local</p>
-    </header>
+<div class="wrap">
+  <header class="card">
+    <div class="glass-title">
+      <div class="logo-dot"></div>
+      <div>
+        <h1>Cyberpunk Liquid Glass Editor</h1>
+        <div class="sub">Paleta negra · rojos · blancos · grises · efectos neón y liquid glass</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input id="fileInput" type="file" accept="image/*,video/*" />
+      <button id="btnClear">Limpiar</button>
+      <button id="btnExport">Exportar imagen</button>
+      <button id="btnRecord">Grabar vídeo</button>
+      <select id="modeSelect" aria-label="Modo">
+        <option value="cyber_neon">Neon Outline</option>
+        <option value="cartoon">Cartoon</option>
+        <option value="sketch">Sketch</option>
+        <option value="paint">Paint</option>
+        <option value="pen">Boli</option>
+        <option value="oil">Óleo</option>
+        <option value="comic">Cómic</option>
+        <option value="manga">Manga</option>
+        <option value="halftone">Halftone</option>
+        <option value="watercolor">Watercolor</option>
+        <option value="chroma">Chroma</option>
+        <option value="gloss">Gloss</option>
+        <option value="none">Sin filtro</option>
+      </select>
+    </div>
+  </header>
 
-    <main class="contenido">
-      <section class="panel panel-canvas" aria-label="Vista previa">
-        <h2>Vista previa</h2>
-        <p class="subtitulo">Mezcla entre foto original y contorno neon brillante sobre fondo negro.</p>
-        <div class="canvas-wrapper">
-          <canvas id="canvas" aria-label="Lienzo de efecto neon"></canvas>
+  <div class="main">
+    <div class="card">
+      <canvas id="glcanvas" width="1280" height="960"></canvas>
+      <video id="hiddenVideo" playsinline style="display:none"></video>
+    </div>
 
-          <div class="spinner-overlay" id="spinner">
-            <div class="spinner" aria-hidden="true"></div>
-            <div style="font-size:0.85rem;color:#eee;">Procesando efecto neon...</div>
+    <aside class="card controls">
+      <div>
+        <label>Presets</label>
+        <div class="presets" id="presets">
+          <div class="preset" data-preset='{"mode":"cyber_neon","neonColor":"#ff2d95","neonGlow":1.2,"neonThreshold":0.18}'>Cyber Pink</div>
+          <div class="preset" data-preset='{"mode":"cyber_neon","neonColor":"#00d4ff","neonGlow":1.0,"neonThreshold":0.16}'>Aqua Neon</div>
+          <div class="preset" data-preset='{"mode":"cyber_neon","neonColor":"#ff4b3e","neonGlow":1.4,"neonThreshold":0.20}'>Red Glass</div>
+          <div class="preset" data-preset='{"mode":"manga","intensity":0.95}'>Manga B/N</div>
+        </div>
+      </div>
+
+      <div>
+        <label>Intensidad</label>
+        <input id="intensity" type="range" min="0" max="1" step="0.01" value="0.9" />
+      </div>
+
+      <div>
+        <label>Detalle edge</label>
+        <input id="edge" type="range" min="0" max="3" step="0.01" value="1.2" />
+      </div>
+
+      <div>
+        <label>Posterize</label>
+        <input id="posterize" type="range" min="2" max="48" step="1" value="6" />
+      </div>
+
+      <div>
+        <label>Grano</label>
+        <input id="grain" type="range" min="0" max="1" step="0.01" value="0.04" />
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <div>
+        <label>Neon Color</label>
+        <div class="row">
+          <input id="neonColor" type="color" value="#ff2d95" />
+          <div class="palette" id="neonPalette" style="margin-left:8px">
+            <div class="swatch" data-color="#ff2d95" style="background:#ff2d95"></div>
+            <div class="swatch" data-color="#ff4b3e" style="background:#ff4b3e"></div>
+            <div class="swatch" data-color="#00d4ff" style="background:#00d4ff"></div>
+            <div class="swatch" data-color="#ffffff" style="background:#ffffff"></div>
+            <div class="swatch" data-color="#9aa0a6" style="background:#9aa0a6"></div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section class="panel panel-controles" aria-label="Panel de control">
-        <div>
-          <h2>📱 Cargar foto</h2>
-          <p class="subtitulo">iPhone: cámara o fototeca · Se redimensiona automáticamente.</p>
-          <div class="input-archivo-wrapper" id="zona-soltar" aria-label="Zona de carga de imagen" tabindex="0">
-            <div class="input-archivo-texto-principal">Haz clic o arrastra</div>
-            <div class="input-archivo-texto-secundario">JPG, PNG, HEIC</div>
-            <input id="archivo" type="file" accept="image/*" aria-label="Seleccionar foto de galería o cámara" />
-          </div>
-        </div>
+      <div>
+        <label>Neon Glow</label>
+        <input id="neonGlow" type="range" min="0" max="2" step="0.01" value="1.2" />
+      </div>
 
-        <div>
-          <h2>Ajustes neon</h2>
-          <div class="controles-grid" aria-label="Controles del efecto">
-            <div class="control">
-              <label for="umbral">
-                Umbral bordes
-                <span class="valor" id="valor-umbral">75</span>
-              </label>
-              <input id="umbral" type="range" min="20" max="150" value="75" />
-            </div>
+      <div>
+        <label>Neon Threshold</label>
+        <input id="neonThreshold" type="range" min="0" max="1" step="0.01" value="0.18" />
+      </div>
 
-            <div class="control">
-              <label for="glow">
-                Brillo glow
-                <span class="valor" id="valor-glow">22</span>
-              </label>
-              <input id="glow" type="range" min="5" max="50" value="22" />
-            </div>
+      <div>
+        <label>Neon Saturation</label>
+        <input id="neonSat" type="range" min="0" max="3" step="0.01" value="1.4" />
+      </div>
 
-            <div class="control">
-              <label for="grosor">
-                Grosor línea
-                <span class="valor" id="valor-grosor">1.8</span>
-              </label>
-              <input id="grosor" type="range" min="1" max="5" step="0.5" value="1.8" />
-            </div>
-
-            <div class="control">
-              <label for="nitidez">
-                Nitidez
-                <span class="valor" id="valor-nitidez">25</span>
-              </label>
-              <input id="nitidez" type="range" min="-50" max="100" value="25" />
-            </div>
-
-            <div class="control">
-              <label for="mezcla">
-                Foto original
-                <span class="valor" id="valor-mezcla">30%</span>
-              </label>
-              <input id="mezcla" type="range" min="0" max="100" value="30" />
-            </div>
-
-            <div class="control">
-              <label for="color">
-                Color neon
-                <span class="valor" id="valor-color">#ff4500</span>
-              </label>
-              <input id="color" type="color" value="#ff4500" />
-            </div>
-          </div>
-
-          <div class="fila-botones-extra">
-            <label for="invertir">
-              <input id="invertir" type="checkbox" />
-              Negativo
-            </label>
-            <label for="suavizar">
-              <input id="suavizar" type="checkbox" checked />
-              Menos ruido
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <h2>⚡ Acciones</h2>
-          <div class="botones" aria-label="Botones de acciones">
-            <button id="btn-aplicar" class="primary" disabled>🔥 Aplicar neon</button>
-            <button id="btn-reset" class="secondary" disabled>↻ Reset</button>
-            <button id="btn-descargar" class="secondary" disabled>💾 Descargar PNG</button>
-          </div>
-          <div class="estado" aria-live="polite">
-            <span id="estado-texto">Toca para cargar foto</span>
-            <span class="fichero" id="estado-archivo"></span>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      Optimizado para iPhone · Próximos: presets, WebGL, más efectos · v2.1
-    </footer>
+      <div class="row" style="margin-top:8px">
+        <button id="fitBtn">Ajustar</button>
+        <button id="centerBtn">Centrar</button>
+      </div>
+    </aside>
   </div>
 
-  <script>
-    // Optimizado para iOS Safari + mejoras de rendimiento
-    const inputArchivo = document.getElementById("archivo");
-    const zonaSoltar = document.getElementById("zona-soltar");
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d", { willReadFrequently: true, alpha: true });
+  <footer class="card">Optimizado para iPhone · WebGL2 · Liquid Glass UI</footer>
+</div>
 
-    const sliderUmbral = document.getElementById("umbral");
-    const sliderGlow = document.getElementById("glow");
-    const sliderGrosor = document.getElementById("grosor");
-    const sliderNitidez = document.getElementById("nitidez");
-    const sliderMezcla = document.getElementById("mezcla");
-    const inputColor = document.getElementById("color");
-    const chkInvertir = document.getElementById("invertir");
-    const chkSuavizar = document.getElementById("suavizar");
+<script>
+/* ---------- WebGL helpers ---------- */
+function createGL(canvas){
+  const gl = canvas.getContext('webgl2', {preserveDrawingBuffer:true});
+  if(!gl) throw new Error('WebGL2 no disponible');
+  return gl;
+}
+function compileShader(gl, type, src){
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    console.error(gl.getShaderInfoLog(s));
+    throw new Error('Shader compile error');
+  }
+  return s;
+}
+function createProgram(gl, vsSrc, fsSrc){
+  const vs = compileShader(gl, gl.VERTEX_SHADER, vsSrc);
+  const fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSrc);
+  const p = gl.createProgram();
+  gl.attachShader(p, vs); gl.attachShader(p, fs);
+  gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)){
+    console.error(gl.getProgramInfoLog(p));
+    throw new Error('Program link error');
+  }
+  return p;
+}
 
-    const valorUmbral = document.getElementById("valor-umbral");
-    const valorGlow = document.getElementById("valor-glow");
-    const valorGrosor = document.getElementById("valor-grosor");
-    const valorNitidez = document.getElementById("valor-nitidez");
-    const valorMezcla = document.getElementById("valor-mezcla");
-    const valorColor = document.getElementById("valor-color");
+/* ---------- Shaders ---------- */
+const vs = `#version 300 es
+precision highp float;
+in vec2 a_pos;
+out vec2 v_uv;
+void main(){
+  v_uv = a_pos * 0.5 + 0.5;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
 
-    const btnAplicar = document.getElementById("btn-aplicar");
-    const btnReset = document.getElementById("btn-reset");
-    const btnDescargar = document.getElementById("btn-descargar");
+const fs = `#version 300 es
+precision highp float;
+in vec2 v_uv;
+out vec4 outColor;
+uniform sampler2D u_tex;
+uniform vec2 u_texSize;
+uniform float u_intensity;
+uniform float u_edge;
+uniform float u_posterize;
+uniform float u_grain;
+uniform int u_mode;
+uniform vec3 u_neonColor;
+uniform float u_neonGlow;
+uniform float u_neonThreshold;
+uniform float u_neonSat;
 
-    const textoEstado = document.getElementById("estado-texto");
-    const textoArchivo = document.getElementById("estado-archivo");
-    const spinner = document.getElementById("spinner");
+vec3 sampleTex(vec2 uv){ return texture(u_tex, vec2(uv.x, 1.0 - uv.y)).rgb; }
+float lum(vec3 c){ return dot(c, vec3(0.299,0.587,0.114)); }
+vec3 posterize(vec3 c, float levels){ return floor(c * levels) / levels; }
 
-    let imagenOriginal = null;
-    let anchoOriginal = 0;
-    let altoOriginal = 0;
-
-    const canvasOculto = document.createElement("canvas");
-    const ctxOculto = canvasOculto.getContext("2d", { willReadFrequently: true });
-    const canvasEdges = document.createElement("canvas");
-    const ctxEdges = canvasEdges.getContext("2d", { willReadFrequently: true });
-
-    let timeoutProcesar = null;
-    let esMovil = /iPhone|iPad|iPod/.test(navigator.userAgent);
-
-    function mostrarSpinner(mostrar) {
-      spinner.classList.toggle("visible", mostrar);
+// Sobel edge magnitude
+float sobel(vec2 uv){
+  vec2 px = 1.0 / u_texSize;
+  float kx[9] = float[9](-1.0,0.0,1.0,-2.0,0.0,2.0,-1.0,0.0,1.0);
+  float ky[9] = float[9](1.0,2.0,1.0,0.0,0.0,0.0,-1.0,-2.0,-1.0);
+  int i=0; float gx=0.0; float gy=0.0;
+  for(int y=-1;y<=1;y++){
+    for(int x=-1;x<=1;x++){
+      float g = lum(sampleTex(uv + vec2(float(x),float(y))*px));
+      gx += kx[i]*g; gy += ky[i]*g; i++;
     }
+  }
+  return length(vec2(gx,gy));
+}
 
-    function actualizarEtiquetas() {
-      valorUmbral.textContent = sliderUmbral.value;
-      valorGlow.textContent = sliderGlow.value;
-      valorGrosor.textContent = sliderGrosor.value;
-      valorNitidez.textContent = sliderNitidez.value;
-      valorMezcla.textContent = sliderMezcla.value + "%";
-      valorColor.textContent = inputColor.value;
-    }
+// compute mask once and reuse
+float edgeMask(vec2 uv){
+  float e = sobel(uv) * u_edge;
+  float m = smoothstep(u_neonThreshold*0.6, u_neonThreshold, e);
+  return pow(m, 1.2);
+}
 
-    function limitarResolucion(ancho, alto, max = esMovil ? 1400 : 2000) {
-      if (ancho <= max && alto <= max) return { ancho, alto };
-      const ratio = ancho / alto;
-      if (ratio >= 1) {
-        return { ancho: max, alto: Math.round(max / ratio) };
-      } else {
-        return { ancho: Math.round(max * ratio), alto: max };
-      }
-    }
+// simple glow by sampling mask offsets (cheap radial approx)
+float glowMask(vec2 uv){
+  float acc = 0.0;
+  vec2 px = 1.0 / u_texSize;
+  float offs[8] = float[8](1.0,2.0,3.0,4.0,6.0,8.0,10.0,14.0);
+  for(int i=0;i<8;i++){
+    float r = offs[i];
+    float m1 = edgeMask(uv + vec2(r,0.0)*px);
+    float m2 = edgeMask(uv + vec2(-r,0.0)*px);
+    float m3 = edgeMask(uv + vec2(0.0,r)*px);
+    float m4 = edgeMask(uv + vec2(0.0,-r)*px);
+    acc += (m1 + m2 + m3 + m4) * (1.0 / (r*0.8));
+  }
+  return clamp(acc * 0.06 * u_neonGlow, 0.0, 1.0);
+}
 
-    function clonarDatosImagen(imageData) {
-      return new ImageData(
-        new Uint8ClampedArray(imageData.data),
-        imageData.width,
-        imageData.height
-      );
-    }
+// noise
+float rnd(vec2 co){ return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453); }
 
-    function cargarImagen(archivo) {
-      if (!archivo || !archivo.type.startsWith("image/")) {
-        textoEstado.textContent = "Selecciona una imagen válida.";
-        return;
-      }
-      const lector = new FileReader();
-      lector.onload = function (e) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = function () {
-          const dims = limitarResolucion(img.naturalWidth, img.naturalHeight);
-          anchoOriginal = dims.ancho;
-          altoOriginal = dims.alto;
+void main(){
+  vec3 color = sampleTex(v_uv);
+  if(u_mode == 0){ outColor = vec4(color,1.0); return; }
 
-          canvas.width = anchoOriginal;
-          canvas.height = altoOriginal;
+  float mask = edgeMask(v_uv);
+  float glow = glowMask(v_uv);
 
-          canvasOculto.width = anchoOriginal;
-          canvasOculto.height = altoOriginal;
-          canvasEdges.width = anchoOriginal;
-          canvasEdges.height = altoOriginal;
+  // neon only on contours: strong line + halo
+  if(u_mode == 1){ // cyber_neon
+    vec3 neon = u_neonColor * u_neonSat;
+    vec3 bg = posterize(color * 0.18 + color * 0.82, max(2.0, u_posterize)); // subtle darkened bg
+    vec3 line = neon * mask * u_intensity;
+    vec3 halo = neon * glow * u_intensity * 0.6;
+    float noise = (rnd(v_uv * u_texSize) - 0.5) * u_grain * 0.12;
+    vec3 outc = bg + halo + line + noise;
+    outColor = vec4(clamp(outc, 0.0, 1.0), 1.0);
+    return;
+  }
 
-          ctxOculto.imageSmoothingEnabled = true;
-          ctxOculto.clearRect(0, 0, anchoOriginal, altoOriginal);
-          ctxOculto.drawImage(img, 0, 0, anchoOriginal, altoOriginal);
+  // other modes (simplified but effective)
+  float edge = sobel(v_uv) * u_edge;
+  float n = (rnd(v_uv * u_texSize) - 0.5) * u_grain;
 
-          imagenOriginal = img;
+  if(u_mode == 2){ // cartoon
+    vec3 b = (sampleTex(v_uv + vec2(1.0/u_texSize.x,0)) + sampleTex(v_uv + vec2(-1.0/u_texSize.x,0)) + sampleTex(v_uv))/3.0;
+    vec3 poster = posterize(b, max(2.0,u_posterize));
+    float e = smoothstep(0.08,0.25,edge);
+    vec3 outc = mix(poster, vec3(0.0), e * u_intensity) + n;
+    outColor = vec4(clamp(outc,0.0,1.0),1.0); return;
+  }
 
-          ctx.imageSmoothingEnabled = true;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, anchoOriginal, altoOriginal);
+  if(u_mode == 3){ // sketch
+    vec3 gray = vec3(lum(color));
+    float e2 = smoothstep(0.05,0.35,edge);
+    vec3 sketch = vec3(1.0) - gray * (1.0 + u_intensity*1.2);
+    vec3 outc = mix(vec3(1.0), sketch, e2) + n*0.5;
+    outColor = vec4(clamp(outc,0.0,1.0),1.0); return;
+  }
 
-          textoEstado.textContent = "Foto cargada ✓ Ajusta y aplica el efecto neon.";
-          textoArchivo.textContent = archivo.name;
+  if(u_mode == 4){ // paint
+    vec3 b1 = sampleTex(v_uv + vec2(1.0/u_texSize.x,0));
+    vec3 b2 = sampleTex(v_uv + vec2(0,1.0/u_texSize.y));
+    vec3 mixb = (b1 + b2 + color) / 3.0;
+    vec3 poster = posterize(mixb, max(3.0,u_posterize));
+    vec3 outc = mix(poster, color, 0.2*(1.0-u_intensity)) + n*0.6;
+    outColor = vec4(clamp(outc,0.0,1.0),1.0); return;
+  }
 
-          btnAplicar.disabled = false;
-          btnReset.disabled = false;
-          btnDescargar.disabled = false;
+  if(u_mode == 5){ // pen
+    float ink = smoothstep(0.05,0.35,edge*1.6);
+    vec3 gray = vec3(lum(color));
+    vec3 stroke = mix(vec3(1.0), vec3(0.0), ink * u_intensity);
+    vec3 outc = clamp(mix(gray, stroke, ink*0.9) + n*0.8,0.0,1.0);
+    outColor = vec4(outc,1.0); return;
+  }
 
-          procesarConDebounce();
-        };
-        img.src = e.target.result;
-      };
-      lector.readAsDataURL(archivo);
-    }
+  if(u_mode == 6){ // oil
+    vec3 b1 = sampleTex(v_uv + vec2(1.0/u_texSize.x,0));
+    vec3 b2 = sampleTex(v_uv + vec2(-1.0/u_texSize.x,0));
+    vec3 mixb = (b1 + b2 + color)/3.0;
+    vec3 poster = posterize(mixb, max(3.0,u_posterize));
+    vec3 outc = clamp(mix(color, poster, u_intensity*0.9) + n*0.6,0.0,1.0);
+    outColor = vec4(outc,1.0); return;
+  }
 
-    function aplicarEfectoNeon() {
-      if (!imagenOriginal) return;
-      mostrarSpinner(true);
+  if(u_mode == 7){ // comic
+    float e2 = smoothstep(0.08,0.28,edge*1.8);
+    vec3 poster = posterize(color, max(3.0,u_posterize));
+    vec3 outc = mix(poster, vec3(0.0), e2 * u_intensity) + n*0.4;
+    outColor = vec4(clamp(outc,0.0,1.0),1.0); return;
+  }
 
-      requestAnimationFrame(() => {
-        const baseData = ctxOculto.getImageData(0, 0, anchoOriginal, altoOriginal);
+  if(u_mode == 8){ // manga
+    float e2 = smoothstep(0.06,0.28,edge*1.8);
+    float gray = lum(color);
+    vec2 p = v_uv * u_texSize / 6.0;
+    float pattern = (sin(p.x*3.1415)*sin(p.y*3.1415));
+    float screentone = mix(smoothstep(0.2,0.8,gray)*0.9, pattern*0.5+0.5,0.6);
+    float final = mix(1.0, 0.0, screentone * u_intensity);
+    final = mix(final, 0.0, e2 * u_intensity);
+    outColor = vec4(vec3(clamp(final,0.0,1.0)),1.0); return;
+  }
 
-        let procesada = baseData;
-        if (chkSuavizar.checked) {
-          procesada = aplicarSuavizadoGaussiano(procesada, esMovil ? 1 : 1);
-        }
+  if(u_mode == 9){ // halftone
+    vec3 p = posterize(color, max(3.0,u_posterize));
+    float gray = lum(p);
+    vec2 q = v_uv * u_texSize / 6.0;
+    float dots = smoothstep(0.0,1.0, gray - (sin(q.x*3.1415)*sin(q.y*3.1415))*0.25);
+    vec3 outc = mix(p, vec3(dots), u_intensity) + n*0.4;
+    outColor = vec4(clamp(outc,0.0,1.0),1.0); return;
+  }
 
-        const grisData = convertirAGris(procesada);
+  if(u_mode == 10){ // watercolor
+    vec3 b1 = sampleTex(v_uv + vec2(1.0/u_texSize.x,0));
+    vec3 b2 = sampleTex(v_uv + vec2(0,1.0/u_texSize.y));
+    vec3 mixb = mix(b1,b2,0.5);
+    vec3 poster = posterize(mixb, max(3.0,u_posterize));
+    vec3 outc = clamp(mix(color, poster, u_intensity*0.9) + n*0.6,0.0,1.0);
+    outColor = vec4(outc,1.0); return;
+  }
 
-        const nitidezFactor = parseInt(sliderNitidez.value, 10);
-        let afterNitidez = grisData;
-        if (nitidezFactor !== 0) {
-          afterNitidez = ajustarNitidez(grisData, nitidezFactor);
-        }
+  if(u_mode == 11){ // chroma
+    vec3 p = posterize(color, max(3.0,u_posterize));
+    float lumv = lum(color);
+    vec3 shift = vec3(1.0 - lumv*u_intensity, 0.6 + lumv*u_intensity*0.4, 0.8 - lumv*u_intensity*0.3);
+    vec3 outc = clamp(mix(color, p * shift, u_intensity*0.9),0.0,1.0);
+    outColor = vec4(outc,1.0); return;
+  }
 
-        const umbral = parseInt(sliderUmbral.value, 10);
-        const edgesData = detectarBordesSobel(afterNitidez, umbral);
+  if(u_mode == 12){ // gloss
+    vec3 b = sampleTex(v_uv + vec2(1.0/u_texSize.x,0));
+    float spec = pow(1.0 - smoothstep(0.0,0.6,edge),3.0) * u_intensity * 0.6;
+    vec3 highlight = vec3(1.0) * spec;
+    vec3 outc = clamp(mix(color,b,0.2*u_intensity) + highlight,0.0,1.0);
+    outColor = vec4(outc,1.0); return;
+  }
 
-        dibujarGlow(edgesData);
+  outColor = vec4(color,1.0);
+}`;
 
-        mezclarOriginalEfecto();
+/* ---------- App state ---------- */
+const canvas = document.getElementById('glcanvas');
+const gl = createGL(canvas);
+const program = createProgram(gl, vs, fs);
+const attribPos = gl.getAttribLocation(program, 'a_pos');
+const uniforms = {
+  u_tex: gl.getUniformLocation(program,'u_tex'),
+  u_texSize: gl.getUniformLocation(program,'u_texSize'),
+  u_intensity: gl.getUniformLocation(program,'u_intensity'),
+  u_edge: gl.getUniformLocation(program,'u_edge'),
+  u_posterize: gl.getUniformLocation(program,'u_posterize'),
+  u_grain: gl.getUniformLocation(program,'u_grain'),
+  u_mode: gl.getUniformLocation(program,'u_mode'),
+  u_neonColor: gl.getUniformLocation(program,'u_neonColor'),
+  u_neonGlow: gl.getUniformLocation(program,'u_neonGlow'),
+  u_neonThreshold: gl.getUniformLocation(program,'u_neonThreshold'),
+  u_neonSat: gl.getUniformLocation(program,'u_neonSat')
+};
 
-        mostrarSpinner(false);
-      });
-    }
+const quadBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
 
-    function procesarConDebounce() {
-      if (!imagenOriginal) return;
-      clearTimeout(timeoutProcesar);
-      timeoutProcesar = setTimeout(aplicarEfectoNeon, esMovil ? 250 : 180);
-    }
+let texture = gl.createTexture();
+function initTexture(){
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+}
+initTexture();
 
-    function convertirAGris(imageData) {
-      const data = imageData.data;
-      const out = clonarDatosImagen(imageData);
-      const o = out.data;
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const gris = 0.299 * r + 0.587 * g + 0.114 * b;
-        o[i] = o[i + 1] = o[i + 2] = gris;
-        o[i + 3] = 255;
-      }
-      return out;
-    }
+/* DOM */
+const fileInput = document.getElementById('fileInput');
+const modeSelect = document.getElementById('modeSelect');
+const intensityEl = document.getElementById('intensity');
+const edgeEl = document.getElementById('edge');
+const posterizeEl = document.getElementById('posterize');
+const grainEl = document.getElementById('grain');
+const btnExport = document.getElementById('btnExport');
+const btnClear = document.getElementById('btnClear');
+const btnRecord = document.getElementById('btnRecord');
+const presetsEl = document.getElementById('presets');
+const fitBtn = document.getElementById('fitBtn');
+const centerBtn = document.getElementById('centerBtn');
+const neonColorEl = document.getElementById('neonColor');
+const neonPalette = document.getElementById('neonPalette');
+const neonGlowEl = document.getElementById('neonGlow');
+const neonThresholdEl = document.getElementById('neonThreshold');
+const neonSatEl = document.getElementById('neonSat');
 
-    function aplicarSuavizadoGaussiano(imageData, repeticiones = 1) {
-      const kernel = [1, 2, 1, 2, 4, 2, 1, 2, 1];
-      const factor = 16;
-      let resultado = imageData;
-      for (let r = 0; r < repeticiones; r++) {
-        resultado = aplicarConvolucionGris(resultado, kernel, factor, 0);
-      }
-      return resultado;
-    }
+let sourceImage = new Image();
+let sourceVideo = document.getElementById('hiddenVideo');
+let isVideo = false;
+let playing = false;
+let recorder = null;
+let recordedChunks = [];
 
-    function aplicarConvolucionGris(imageData, kernel, factor, offset) {
-      const { width, height, data } = imageData;
-      const out = new ImageData(width, height);
-      const dst = out.data;
-      const k = kernel;
-      for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
-          let sum = 0;
-          let idx = (y * width + x) * 4;
-          const posiciones = [
-            idx - 4 - width * 4, idx - width * 4, idx + 4 - width * 4,
-            idx - 4, idx, idx + 4,
-            idx - 4 + width * 4, idx + width * 4, idx + 4 + width * 4
-          ];
-          for (let i = 0; i < 9; i++) {
-            const di = posiciones[i];
-            sum += data[di] * k[i];
-          }
-          let g = sum / factor + offset;
-          g = g < 0 ? 0 : g > 255 ? 255 : g;
-          dst[idx] = dst[idx + 1] = dst[idx + 2] = g;
-          dst[idx + 3] = 255;
-        }
-      }
-      return out;
-    }
+/* Resize canvas for DPR */
+function resizeCanvasToDisplaySize(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const rect = canvas.getBoundingClientRect();
+  const w = Math.max(320, Math.floor(rect.width * dpr));
+  const h = Math.max(240, Math.floor(rect.height * dpr));
+  if(canvas.width !== w || canvas.height !== h){
+    canvas.width = w; canvas.height = h;
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+}
 
-    function ajustarNitidez(imageData, factorNitidez) {
-      const blurred = aplicarSuavizadoGaussiano(imageData, 1);
-      const { width, height, data } = imageData;
-      const sharp = clonarDatosImagen(imageData);
-      const sd = sharp.data;
-      const bd = blurred.data;
-      let amount = factorNitidez >= 0 ? factorNitidez / 65 : factorNitidez / 70;
-      for (let i = 0; i < data.length; i += 4) {
-        const orig = data[i];
-        const blur = bd[i];
-        let val = orig + amount * (orig - blur);
-        val = val < 0 ? 0 : val > 255 ? 255 : val;
-        sd[i] = sd[i + 1] = sd[i + 2] = val;
-        sd[i + 3] = 255;
-      }
-      return sharp;
-    }
+/* File input */
+fileInput.addEventListener('change', async (e)=>{
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  if(f.type.startsWith('video/')){
+    isVideo = true;
+    sourceVideo.src = url;
+    sourceVideo.muted = true;
+    sourceVideo.loop = true;
+    try{ await sourceVideo.play(); }catch(e){}
+    playing = true;
+  } else {
+    isVideo = false;
+    sourceImage = new Image();
+    sourceImage.src = url;
+    await new Promise(r => sourceImage.onload = r);
+  }
+});
 
-    function detectarBordesSobel(imageData, umbral) {
-      const { width, height, data } = imageData;
-      const Gx = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
-      const Gy = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
-      const out = new ImageData(width, height);
-      const dst = out.data;
-      for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
-          let idx = (y * width + x) * 4;
-          const posiciones = [
-            idx - 4 - width * 4, idx - width * 4, idx + 4 - width * 4,
-            idx - 4, idx, idx + 4,
-            idx - 4 + width * 4, idx + width * 4, idx + 4 + width * 4
-          ];
-          let sumX = 0;
-          let sumY = 0;
-          for (let i = 0; i < 9; i++) {
-            const p = data[posiciones[i]];
-            sumX += p * Gx[i];
-            sumY += p * Gy[i];
-          }
-          const mag = Math.sqrt(sumX * sumX + sumY * sumY);
-          const v = mag > umbral ? 255 : 0;
-          dst[idx] = dst[idx + 1] = dst[idx + 2] = v;
-          dst[idx + 3] = v;
-        }
-      }
-      return out;
-    }
+/* Presets */
+presetsEl.addEventListener('click', (ev)=>{
+  const p = ev.target.closest('.preset');
+  if(!p) return;
+  const cfg = JSON.parse(p.dataset.preset);
+  if(cfg.mode) modeSelect.value = cfg.mode;
+  if(cfg.neonColor) neonColorEl.value = cfg.neonColor;
+  if(cfg.neonGlow) neonGlowEl.value = cfg.neonGlow;
+  if(cfg.neonThreshold) neonThresholdEl.value = cfg.neonThreshold;
+  if(cfg.intensity) intensityEl.value = cfg.intensity;
+  if(cfg.posterize) posterizeEl.value = cfg.posterize;
+});
 
-    function dibujarGlow(edgesData) {
-      const { width, height, data } = edgesData;
-      canvasEdges.width = width;
-      canvasEdges.height = height;
+/* Neon palette quick pick */
+neonPalette.addEventListener('click', (ev)=>{
+  const s = ev.target.closest('.swatch');
+  if(!s) return;
+  neonColorEl.value = s.dataset.color;
+});
 
-      ctxEdges.globalCompositeOperation = "source-over";
-      ctxEdges.clearRect(0, 0, width, height);
-      ctxEdges.fillStyle = "#000";
-      ctxEdges.fillRect(0, 0, width, height);
+/* Buttons */
+btnClear.addEventListener('click', ()=>{
+  isVideo = false; playing = false;
+  sourceImage = new Image();
+  sourceVideo.pause();
+  gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
+});
+btnExport.addEventListener('click', ()=>{
+  const data = canvas.toDataURL('image/png');
+  const a = document.createElement('a'); a.href = data; a.download = 'cyber_edit.png'; a.click();
+});
 
-      const color = inputColor.value;
-      const grosor = parseFloat(sliderGrosor.value);
+/* Recording */
+btnRecord.addEventListener('click', async ()=>{
+  if(recorder && recorder.state === 'recording'){ recorder.stop(); btnRecord.textContent='Grabar vídeo'; return; }
+  recordedChunks = [];
+  const stream = canvas.captureStream(30);
+  try{ recorder = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9'}); }catch(e){ recorder = new MediaRecorder(stream); }
+  recorder.ondataavailable = e => { if(e.data.size) recordedChunks.push(e.data); };
+  recorder.onstop = () => {
+    const blob = new Blob(recordedChunks, {type:'video/webm'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'cyber_recording.webm'; a.click();
+    URL.revokeObjectURL(url);
+  };
+  recorder.start(); btnRecord.textContent='Detener';
+});
 
-      ctxEdges.lineCap = "round";
-      ctxEdges.lineJoin = "round";
-      ctxEdges.globalCompositeOperation = "lighter";
+/* Fit / Center placeholders */
+fitBtn.addEventListener('click', ()=>{ alert('Ajustar al lienzo: implementado en próxima iteración'); });
+centerBtn.addEventListener('click', ()=>{ alert('Centrar: implementado en próxima iteración'); });
 
-      const pasosGlow = esMovil ? 2 : 3;
-      const blurBase = parseInt(sliderGlow.value, 10);
+/* Render loop */
+function updateTextureFromSource(){
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  if(isVideo && playing){
+    try{ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,sourceVideo); }catch(e){}
+  } else if(sourceImage && sourceImage.complete && sourceImage.naturalWidth){
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,sourceImage);
+  } else {
+    const blank = new Uint8Array([10,10,12,255]);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,blank);
+  }
+}
 
-      for (let pass = pasosGlow; pass >= 1; pass--) {
-        ctxEdges.save();
-        ctxEdges.lineWidth = grosor + pass * 0.9;
-        ctxEdges.strokeStyle = color;
-        ctxEdges.shadowColor = color;
-        ctxEdges.shadowBlur = (blurBase * pass) / 2;
-        ctxEdges.beginPath();
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            const idx = (y * width + x) * 4;
-            const v = data[idx];
-            if (v > 0) {
-              ctxEdges.moveTo(x, y);
-              ctxEdges.lineTo(x + 0.1, y + 0.1);
-            }
-          }
-        }
-        ctxEdges.stroke();
-        ctxEdges.restore();
-      }
+function hexToVec3(hex){
+  const h = hex.replace('#','');
+  return [parseInt(h.substring(0,2),16)/255, parseInt(h.substring(2,4),16)/255, parseInt(h.substring(4,6),16)/255];
+}
 
-      if (chkInvertir.checked) {
-        const tmp = ctxEdges.getImageData(0, 0, width, height);
-        const td = tmp.data;
-        for (let i = 0; i < td.length; i += 4) {
-          td[i] = 255 - td[i];
-          td[i + 1] = 255 - td[i + 1];
-          td[i + 2] = 255 - td[i + 2];
-        }
-        ctxEdges.putImageData(tmp, 0, 0);
-      }
-    }
+function render(){
+  resizeCanvasToDisplaySize();
+  updateTextureFromSource();
 
-    function mezclarOriginalEfecto() {
-      if (!imagenOriginal) return;
-      const mezcla = parseInt(sliderMezcla.value, 10) / 100;
+  gl.useProgram(program);
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+  gl.enableVertexAttribArray(attribPos);
+  gl.vertexAttribPointer(attribPos, 2, gl.FLOAT, false, 0, 0);
 
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.uniform1i(uniforms.u_tex, 0);
+  gl.uniform2f(uniforms.u_texSize, canvas.width, canvas.height);
+  gl.uniform1f(uniforms.u_intensity, parseFloat(intensityEl.value));
+  gl.uniform1f(uniforms.u_edge, parseFloat(edgeEl.value));
+  gl.uniform1f(uniforms.u_posterize, parseFloat(posterizeEl.value));
+  gl.uniform1f(uniforms.u_grain, parseFloat(grainEl.value));
+  const modeMap = {none:0, cyber_neon:1, cartoon:2, sketch:3, paint:4, pen:5, oil:6, comic:7, manga:8, halftone:9, watercolor:10, chroma:11, gloss:12};
+  gl.uniform1i(uniforms.u_mode, modeMap[modeSelect.value] ?? 0);
 
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const neonVec = hexToVec3(neonColorEl.value);
+  gl.uniform3f(uniforms.u_neonColor, neonVec[0], neonVec[1], neonVec[2]);
+  gl.uniform1f(uniforms.u_neonGlow, parseFloat(neonGlowEl.value));
+  gl.uniform1f(uniforms.u_neonThreshold, parseFloat(neonThresholdEl.value));
+  gl.uniform1f(uniforms.u_neonSat, parseFloat(neonSatEl.value));
 
-      if (mezcla > 0) {
-        ctx.globalAlpha = mezcla;
-        ctx.globalCompositeOperation = "source-over";
-        ctx.drawImage(imagenOriginal, 0, 0, anchoOriginal, altoOriginal);
-      }
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
 
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "lighter";
-      ctx.drawImage(canvasEdges, 0, 0);
+/* UX */
+canvas.addEventListener('click', ()=> fileInput.click());
+sourceVideo.addEventListener('play', ()=>{ playing = true; });
+sourceVideo.addEventListener('pause', ()=>{ playing = false; });
 
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 1;
-    }
-
-    // Eventos optimizados
-    function manejarArchivoSeleccionado(e) {
-      const archivo = e.target.files[0];
-      if (!archivo) return;
-      cargarImagen(archivo);
-    }
-
-    inputArchivo.addEventListener("change", manejarArchivoSeleccionado);
-
-    zonaSoltar.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      zonaSoltar.classList.add("dragover");
-    });
-
-    zonaSoltar.addEventListener("dragleave", (e) => {
-      e.preventDefault();
-      zonaSoltar.classList.remove("dragover");
-    });
-
-    zonaSoltar.addEventListener("drop", (e) => {
-      e.preventDefault();
-      zonaSoltar.classList.remove("dragover");
-      const archivo = e.dataTransfer.files[0];
-      if (archivo) {
-        inputArchivo.files = e.dataTransfer.files;
-        cargarImagen(archivo);
-      }
-    });
-
-    zonaSoltar.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        inputArchivo.click();
-      }
-    });
-
-    [
-      sliderUmbral, sliderGlow, sliderGrosor, sliderNitidez, sliderMezcla, inputColor, chkInvertir, chkSuavizar
-    ].forEach((el) => {
-      el.addEventListener("input", () => {
-        actualizarEtiquetas();
-        procesarConDebounce();
-      });
-    });
-
-    btnAplicar.addEventListener("click", aplicarEfectoNeon);
-
-    btnReset.addEventListener("click", () => {
-      if (!imagenOriginal) return;
-      sliderUmbral.value = 75;
-      sliderGlow.value = 22;
-      sliderGrosor.value = 1.8;
-      sliderNitidez.value = 25;
-      sliderMezcla.value = 30;
-      inputColor.value = "#ff4500";
-      chkInvertir.checked = false;
-      chkSuavizar.checked = true;
-      actualizarEtiquetas();
-      procesarConDebounce();
-    });
-
-    btnDescargar.addEventListener("click", () => {
-      if (!imagenOriginal) return;
-      try {
-        canvas.toBlob((blob) => {
-          const enlace = document.createElement("a");
-          enlace.href = URL.createObjectURL(blob);
-          enlace.download = `neon-edge-${Date.now()}.png`;
-          enlace.click();
-          URL.revokeObjectURL(enlace.href);
-        }, "image/png", 0.95);
-      } catch (e) {
-        // Fallback para iOS Safari
-        const enlace = document.createElement("a");
-        enlace.download = "neon-edge.png";
-        enlace.href = canvas.toDataURL("image/png", 0.95);
-        enlace.click();
-      }
-    });
-
-    actualizarEtiquetas();
-  </script>
+</script>
 </body>
 </html>
